@@ -1,0 +1,1388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Brain Freeze NYC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#3A2E5C; --ink2:#6B6185; --muted:#A39BB5;
+    --bg1:#FFF4EC; --bg2:#FDE8F0;
+    --card:#FFFFFF; --line:#F0E6EF;
+    --pink:#FF7EB0; --pink-d:#E85C93; --pink-l:#FFE3EE;
+    --blue:#6CB8FF; --blue-d:#3F8FE0;
+    --mint:#5ED6C0; --mint-d:#2FB59C; --mint-l:#DDF8F1;
+    --yellow:#FFD166; --yellow-l:#FFF4D1;
+    --red:#FF6B81;
+    --chart:#4E8FE0; --chart2:#F2709F;
+    --shadow:0 6px 0 rgba(58,46,92,.12), 0 14px 30px rgba(58,46,92,.08);
+    --display:Fredoka,Nunito,system-ui,-apple-system,"Segoe UI",sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;color:var(--ink);font-family:Nunito,system-ui,-apple-system,"Segoe UI",sans-serif}
+  body{min-height:100vh;background:
+    radial-gradient(circle at 10% 10%,#FFE1EC 0,transparent 35%),
+    radial-gradient(circle at 90% 20%,#DDF2FF 0,transparent 35%),
+    radial-gradient(circle at 50% 100%,#E3FAF2 0,transparent 40%),
+    linear-gradient(var(--bg1),var(--bg2))}
+  button{font-family:inherit;cursor:pointer;color:var(--ink)}
+  h1,h2,h3{font-family:var(--display);margin:0;font-weight:600}
+  #app{max-width:1180px;margin:0 auto;padding:10px 16px 18px}
+  .screen{display:none}
+  .screen.active{display:block}
+  .center{text-align:center}
+
+  /* ---------- buttons ---------- */
+  .primary{background:var(--pink);color:#fff;border:none;border-radius:18px;padding:14px 28px;font-size:20px;font-weight:700;font-family:var(--display);
+    box-shadow:0 6px 0 var(--pink-d);transition:transform .08s, box-shadow .08s}
+  .primary:hover{transform:translateY(-1px);box-shadow:0 7px 0 var(--pink-d)}
+  .primary:active{transform:translateY(5px);box-shadow:0 1px 0 var(--pink-d)}
+  .soft{background:#fff;border:2px solid var(--line);border-radius:14px;padding:7px 14px;font-weight:800;font-size:15px;box-shadow:0 3px 0 var(--line)}
+  .soft:active{transform:translateY(2px);box-shadow:none}
+
+  /* ---------- Title ---------- */
+  .title-wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:36px;align-items:center;min-height:calc(100vh - 40px)}
+  .logo{font-size:clamp(48px,7vw,82px);line-height:.95;letter-spacing:-1px;font-weight:700}
+  .logo .nyc{color:var(--pink);display:block}
+  .tagline{font-size:20px;color:var(--ink2);margin:14px 0 26px;font-weight:700;line-height:1.4;max-width:470px}
+  .hero svg{width:100%;max-width:440px;display:block;margin-bottom:6px;animation:float 3s ease-in-out infinite}
+  @keyframes float{50%{transform:translateY(-6px)}}
+  .howto{background:var(--card);border-radius:26px;padding:24px 26px;box-shadow:var(--shadow)}
+  .howto h2{font-size:26px;margin-bottom:14px}
+  .hstep{display:flex;gap:14px;align-items:center;margin-bottom:12px;font-weight:700;font-size:16.5px;line-height:1.35}
+  .hstep .n{flex:none;width:42px;height:42px;border-radius:14px;display:grid;place-items:center;font-size:22px}
+  .howto .note{margin:14px 0 0;padding:12px 14px;border-radius:16px;background:var(--yellow-l);font-size:15px;font-weight:700;color:var(--ink2)}
+  .best{margin-top:16px;color:var(--ink2);font-weight:800}
+
+  /* ---------- HUD ---------- */
+  .hud{display:flex;gap:8px;align-items:center;margin-bottom:8px;flex-wrap:wrap}
+  .pill{background:#fff;border-radius:999px;padding:7px 14px;font-weight:800;font-size:15px;white-space:nowrap;box-shadow:0 3px 0 rgba(58,46,92,.08)}
+  .pill.cash{background:var(--mint-l);color:#17725F}
+  .dots{display:inline-flex;gap:5px;vertical-align:middle;margin-left:4px}
+  .dots i{width:10px;height:10px;border-radius:50%;background:#E6DEEA;display:inline-block}
+  .dots i.done{background:var(--mint)} .dots i.now{background:var(--pink)}
+  .hud .spacer{flex:1}
+  .iconbtn{background:#fff;border:none;border-radius:999px;padding:7px 13px;font-weight:800;font-size:15px;box-shadow:0 3px 0 rgba(58,46,92,.08)}
+
+  /* ---------- Truck window scene ---------- */
+  .truck{border-radius:26px;background:var(--pink);padding:0 12px 12px;box-shadow:var(--shadow);position:relative}
+  .awning{height:32px;position:relative;margin:0 -12px;border-radius:26px 26px 0 0;overflow:hidden;
+    background:repeating-linear-gradient(90deg,#fff 0 46px,var(--pink-l) 46px 92px)}
+  .awning:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:14px;
+    background:radial-gradient(circle at 23px 0,transparent 0 14px,var(--pink) 14.5px) 0 0/46px 14px repeat-x}
+  .sign{position:absolute;left:50%;top:3px;transform:translateX(-50%);background:var(--yellow);border-radius:12px;padding:2px 18px;
+    font-family:var(--display);font-weight:700;font-size:15px;white-space:nowrap;box-shadow:0 3px 0 #E9B23F;z-index:2}
+  .scene{position:relative;height:142px;border-radius:18px;overflow:hidden;background:#9ED8FF;box-shadow:inset 0 0 0 4px rgba(255,255,255,.55)}
+  .sky{position:absolute;inset:0}
+  .orb{position:absolute;left:7%;top:12px;width:58px;height:58px;border-radius:50%}
+  .orb.sun{background:#FFE07A;box-shadow:0 0 0 12px rgba(255,224,122,.35),0 0 0 26px rgba(255,224,122,.15)}
+  .orb.moon{background:#FFF6D8;box-shadow:0 0 0 10px rgba(255,246,216,.12);width:46px;height:46px}
+  .cloud{position:absolute;height:22px;border-radius:999px;background:rgba(255,255,255,.9);animation:drift 40s linear infinite}
+  .cloud:before,.cloud:after{content:"";position:absolute;background:inherit;border-radius:50%}
+  .cloud:before{width:30px;height:30px;left:12px;top:-14px}
+  .cloud:after{width:22px;height:22px;left:34px;top:-9px}
+  @keyframes drift{from{transform:translateX(-140px)}to{transform:translateX(1300px)}}
+  .landmark{position:absolute;right:5%;bottom:26px;font-size:64px;line-height:1}
+  .skyline{position:absolute;left:0;right:0;bottom:26px;width:100%;height:84px}
+  .ground{position:absolute;left:0;right:0;bottom:0;height:28px}
+  .ground:before{content:"";position:absolute;left:0;right:0;top:0;height:7px;background:rgba(255,255,255,.45)}
+  .customer{position:absolute;bottom:6px;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;width:230px}
+  .customer.enter{animation:walkin .55s cubic-bezier(.2,.8,.3,1)}
+  .customer.leave{animation:walkout .5s ease-in forwards}
+  @keyframes walkin{from{transform:translateX(170%)}to{transform:translateX(-50%)}}
+  @keyframes walkout{to{transform:translateX(-280%);opacity:0}}
+  .avatar{font-size:50px;line-height:1;animation:bob 1.6s ease-in-out infinite;filter:drop-shadow(0 6px 0 rgba(0,0,0,.12))}
+  .customer.angry .avatar{animation:shake .35s linear infinite}
+  @keyframes bob{50%{transform:translateY(-5px)}}
+  @keyframes shake{25%{transform:translateX(-3px) rotate(-3deg)}75%{transform:translateX(3px) rotate(3deg)}}
+  .nametag{background:#fff;border-radius:10px;padding:2px 10px;font-weight:900;font-size:13px;margin-top:3px;white-space:nowrap;box-shadow:0 2px 0 rgba(58,46,92,.15)}
+  .patience{display:flex;align-items:center;gap:6px;margin-top:5px}
+  .pbar{width:150px;height:12px;background:rgba(255,255,255,.75);border-radius:999px;overflow:hidden;box-shadow:inset 0 0 0 2px rgba(58,46,92,.15)}
+  .pfill{height:100%;width:100%;background:var(--mint);border-radius:999px;transition:background .3s}
+  .mood{font-size:20px;line-height:1}
+  .bubble{position:absolute;bottom:62px;left:60%;background:#fff;border-radius:18px;padding:9px 14px;font-weight:800;font-size:15px;width:max-content;max-width:270px;box-shadow:0 4px 0 rgba(58,46,92,.12)}
+  .bubble:after{content:"";position:absolute;left:16px;bottom:-8px;width:16px;height:16px;background:#fff;transform:rotate(45deg);border-radius:3px}
+  .toast{position:absolute;left:18px;top:14px;transform:translateY(-6px);background:var(--ink);color:#fff;padding:8px 18px;border-radius:999px;font-weight:800;opacity:0;transition:.2s;pointer-events:none;z-index:4;white-space:nowrap}
+  .toast.show{opacity:1;transform:translateY(0)}
+
+  /* ---------- hint ---------- */
+  .hint{margin:0 0 10px;background:#fff;border-radius:16px;padding:7px 14px;font-weight:800;font-size:16px;display:flex;align-items:center;gap:10px;box-shadow:0 3px 0 rgba(58,46,92,.08)}
+  .hint .hand{font-size:21px;animation:nudge 1s ease-in-out infinite}
+  @keyframes nudge{50%{transform:translateX(5px)}}
+  .hint.good{background:var(--mint-l);color:#17725F}
+  .hint.warn{background:#FFE7EB;color:#B33952}
+
+  /* ---------- station ---------- */
+  .station{display:grid;grid-template-columns:270px 1fr;gap:12px}
+  .panel-card{background:#fff;border-radius:22px;box-shadow:var(--shadow)}
+  /* ticket */
+  .order{display:flex;gap:22px;align-items:center;justify-content:center;background:#FFFDF7;border-radius:22px;padding:6px 18px;margin:8px 0;box-shadow:var(--shadow);position:relative}
+  .order:before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:6px;border-radius:0 6px 6px 0;background:var(--pink)}
+  .o-pic{flex:none;width:104px;height:110px;border-radius:18px;background:#F8F0F8;display:flex;align-items:flex-end;justify-content:center;padding:4px;margin-left:8px}
+  .o-pic svg{height:100%;width:auto;max-width:100%}
+  .o-main{flex:0 1 auto;min-width:0}
+  .o-head{display:flex;align-items:baseline;justify-content:center;gap:12px;margin-bottom:6px}
+  .o-head .t{font-family:var(--display);font-weight:600;font-size:19px}
+  .o-head .who{font-weight:800;color:var(--ink2);font-size:14px}
+  .o-groups{display:flex;gap:10px;align-items:flex-start;justify-content:center;flex-wrap:wrap}
+  .o-arrow{align-self:center;color:var(--muted);font-size:20px;font-weight:900;padding-top:16px}
+  .o-lbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;font-weight:900;color:var(--muted);margin-bottom:4px}
+  .o-chips{display:flex;gap:6px;flex-wrap:wrap}
+  .ochip{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:13px;background:#F4EEF7;font-weight:800;font-size:16px;white-space:nowrap;transition:background .15s}
+  .ochip .num{display:inline-grid;place-items:center;width:20px;height:20px;border-radius:50%;background:var(--ink);color:#fff;font-size:11.5px}
+  .ochip .em{font-size:19px;line-height:1}
+  .ochip.none{color:var(--muted);background:#F7F4F8}
+  .ochip.ok{background:var(--mint-l);box-shadow:inset 0 0 0 2px var(--mint)}
+  .ochip.bad{background:#FFE7EB;box-shadow:inset 0 0 0 2px var(--red)}
+  .ck{flex:none;width:20px;height:20px;border-radius:7px;border:2px solid #DCD3E4;display:grid;place-items:center;font-size:12px;color:#fff;background:#fff}
+  .ck.ok{background:var(--mint);border-color:var(--mint)}
+  .ck.bad{background:var(--red);border-color:var(--red)}
+  .sw{display:inline-block;width:13px;height:13px;border-radius:50%;box-shadow:inset 0 0 0 2px rgba(58,46,92,.25);flex:none}
+  /* counter */
+  .counter{display:flex;flex-direction:column;align-items:center;padding:10px 8px 0;overflow:hidden;background:#fff}
+  #build{width:100%;justify-content:center;background:linear-gradient(transparent 80%,var(--pink-l) 80%);border-radius:14px}
+  .counter-label{font-family:var(--display);font-weight:600;font-size:15px;color:var(--ink2)}
+  #build{flex:1;display:flex;align-items:flex-end}
+  #build svg{height:228px;width:auto;display:block}
+  /* controls */
+  .controls{padding:10px 12px;display:flex;flex-direction:column;gap:7px}
+  .step{border-radius:16px;padding:6px 8px 8px;margin:-6px -8px 0;transition:background .2s, box-shadow .2s}
+  .step.glow{background:var(--yellow-l);box-shadow:0 0 0 3px var(--yellow)}
+  .step.done h3 .n{background:var(--mint)}
+  .step h3{font-size:15px;margin-bottom:6px;display:flex;align-items:center;justify-content:center;gap:8px}
+  .step h3 .n{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:50%;background:var(--ink);color:#fff;font-size:13px;font-family:Nunito}
+  .row{display:flex;gap:10px;justify-content:center}
+  .cbtn{flex:0 0 132px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;background:#fff;border:2px solid var(--line);border-radius:18px;padding:6px 8px 7px;font-weight:800;font-size:14px;box-shadow:0 3px 0 var(--line)}
+  .cbtn svg{width:36px;height:36px}
+  .sel{background:var(--yellow-l)!important;border-color:var(--yellow)!important;box-shadow:0 3px 0 #EFC24E!important}
+  .target{animation:pulse 1s ease-in-out infinite;border-color:var(--pink)!important}
+  @keyframes pulse{50%{box-shadow:0 0 0 5px rgba(255,126,176,.35)}}
+  .scoop-row{display:flex;gap:14px;align-items:stretch;justify-content:center}
+  .tubs{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;flex:0 1 auto;align-content:flex-start;touch-action:none;user-select:none;-webkit-user-select:none}
+  .tub{position:relative;border:2px solid var(--line);border-radius:18px;background:#fff;padding:6px 3px 6px;width:84px;font-weight:800;font-size:12px;line-height:1.15;text-align:center;display:flex;flex-direction:column;align-items:center;gap:0;touch-action:none;box-shadow:0 3px 0 var(--line)}
+  .tub svg{width:48px;height:37px;margin-bottom:2px}
+  .tub.holding{transform:translateY(2px) scale(.97);background:var(--pink-l);box-shadow:none}
+  .badge{position:absolute;top:-8px;right:-6px;background:var(--pink);color:#fff;font-size:10px;font-weight:900;border-radius:999px;padding:1px 7px;letter-spacing:.04em}
+  .meter-wrap{display:flex;flex-direction:column;align-items:center;gap:3px;width:62px}
+  .meter{width:54px;flex:1;border-radius:16px;background:#F4EFF6;position:relative;overflow:hidden;min-height:56px;box-shadow:inset 0 0 0 2px #E7DDEC}
+  .zone{position:absolute;left:0;right:0;background:rgba(94,214,192,.45);border-top:2px solid var(--mint-d);border-bottom:2px solid var(--mint-d)}
+  .mfill{position:absolute;left:8px;right:8px;bottom:0;height:0;background:linear-gradient(var(--pink),#FFB3CF);border-radius:10px 10px 0 0}
+  .mlabel{font-size:11px;font-weight:900;color:var(--ink2);text-align:center;line-height:1.1}
+  .mlabel.now{color:var(--mint-d)} .mlabel.over{color:var(--red)}
+  .tops{display:flex;flex-wrap:wrap;justify-content:center;gap:6px}
+  .tbtn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;width:92px;border:2px solid var(--line);border-radius:18px;background:#fff;padding:6px 4px;font-weight:800;font-size:12px;line-height:1.15;text-align:center;white-space:normal;overflow:visible;box-shadow:0 3px 0 var(--line);position:relative}
+  .tbtn .jar{width:30px;height:30px;border-radius:12px;background:#F7F1FA;display:grid;place-items:center;font-size:22px;flex:none}
+  .tbtn span.t{white-space:normal}
+  .tbtn .badge{top:-8px;right:-6px}
+  .actions{display:flex;flex-direction:column;gap:7px;width:100%;padding:8px 4px 10px}
+  .actions .small{display:flex;gap:7px}
+  .actions .small .soft{flex:1;padding:7px 6px}
+  .serve{width:100%;background:var(--mint);color:#fff;border:none;border-radius:16px;font-family:var(--display);font-weight:700;font-size:19px;padding:8px 28px;box-shadow:0 5px 0 var(--mint-d)}
+  .serve:active{transform:translateY(4px);box-shadow:0 1px 0 var(--mint-d)}
+  .serve.ready{animation:ready 1s ease-in-out infinite}
+  @keyframes ready{50%{transform:scale(1.06)}}
+
+  /* ---------- overlay ---------- */
+  .overlay{position:fixed;inset:0;background:rgba(58,46,92,.45);backdrop-filter:blur(3px);display:none;align-items:center;justify-content:center;z-index:20;padding:16px}
+  .overlay.show{display:flex}
+  .card{background:#fff;border-radius:28px;box-shadow:0 10px 0 rgba(58,46,92,.15),0 30px 60px rgba(58,46,92,.25);padding:24px 28px;max-width:600px;width:100%;max-height:calc(100vh - 32px);overflow:auto;animation:pop .25s cubic-bezier(.2,.9,.3,1.3)}
+  @keyframes pop{from{transform:scale(.9);opacity:0}}
+  .card h2{font-size:30px}
+  .eyebrow{font-weight:900;font-size:12.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--pink-d)}
+  .stars{font-size:38px;letter-spacing:3px;color:#FFB800;margin:2px 0}
+  .stars .off{color:#EDE6F0}
+  .quote{font-size:18px;font-weight:800;margin:6px 0 12px}
+  .compare{display:flex;justify-content:center;gap:16px;margin:4px 0 12px}
+  .compare > div{text-align:center;font-weight:900;font-size:13px;color:var(--ink2);background:#FBF7FC;border-radius:18px;padding:10px 18px 8px}
+  .compare svg{height:130px;width:auto;display:block;margin:0 auto 4px}
+  .bd{display:grid;grid-template-columns:100px 1fr 50px;gap:7px 10px;align-items:center;text-align:left;font-weight:800;font-size:14px;margin:6px auto 14px;max-width:420px}
+  .bd .bar{height:12px;background:#F2ECF4;border-radius:999px;overflow:hidden}
+  .bd .bar i{display:block;height:100%;background:var(--chart);border-radius:999px}
+  .bd .v{text-align:right;color:var(--ink2);font-variant-numeric:tabular-nums}
+  .money{font-weight:900;font-size:17px;margin-bottom:16px}
+  .money b{color:#17906F}
+  .newstuff{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0 18px}
+  .chip{border-radius:999px;padding:5px 12px;font-weight:800;background:var(--yellow-l);font-size:14px;display:inline-flex;align-items:center;gap:6px}
+  .confetti{position:fixed;top:-16px;width:10px;height:14px;border-radius:3px;z-index:30;pointer-events:none;animation:fall linear forwards}
+  @keyframes fall{to{transform:translateY(110vh) rotate(800deg)}}
+
+  /* ---------- dashboard ---------- */
+  .dash{padding-top:6px}
+  .dash-head{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;margin-bottom:14px}
+  .dash-head h1{font-size:34px}
+  .grade{font-family:var(--display);font-weight:600;font-size:16px;background:#fff;border-radius:20px;padding:10px 20px;text-align:center;box-shadow:var(--shadow)}
+  .grade b{display:block;font-size:42px;line-height:1;color:var(--pink)}
+  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:10px;margin-bottom:12px}
+  .kpi{background:#fff;border-radius:18px;padding:12px 14px;box-shadow:0 4px 0 rgba(58,46,92,.08)}
+  .kpi .k{font-size:11.5px;font-weight:900;color:var(--ink2);text-transform:uppercase;letter-spacing:.06em}
+  .kpi .v{font-family:var(--display);font-weight:600;font-size:28px;line-height:1.2;font-variant-numeric:tabular-nums}
+  .kpi .d{font-size:12.5px;font-weight:800;color:var(--muted)}
+  .kpi .d.good{color:#17906F} .kpi .d.bad{color:#D23E5C}
+  .insight{background:var(--yellow-l);border-radius:18px;padding:12px 16px;font-weight:800;margin-bottom:12px;line-height:1.45}
+  .panels{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+  .panel{background:#fff;border-radius:20px;padding:14px 16px;box-shadow:0 4px 0 rgba(58,46,92,.08)}
+  .panel h3{font-size:17px}
+  .panel .sub{font-size:13px;color:var(--ink2);margin:2px 0 4px;font-weight:700}
+  .panel.wide{grid-column:1 / -1}
+  .chart{width:100%;height:auto;display:block}
+  .chart text{font-family:Nunito,sans-serif;fill:var(--ink2);font-size:12px;font-weight:800}
+  .chart .val{fill:var(--ink);font-weight:900}
+  .chart .hit{fill:transparent}
+  .reviews{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .review{border-radius:16px;padding:12px 14px;background:#FBF7FC}
+  .review .who{font-weight:900;display:flex;justify-content:space-between;gap:8px;font-size:14.5px}
+  .review .rs{color:#FFB800;letter-spacing:1px;white-space:nowrap}
+  .review p{margin:5px 0 0;font-weight:700;color:var(--ink2);line-height:1.4}
+  .dash-foot{display:flex;justify-content:flex-end;margin-top:6px}
+  .tip{position:fixed;pointer-events:none;background:var(--ink);color:#fff;border-radius:12px;padding:8px 11px;font-size:13px;font-weight:700;line-height:1.45;z-index:40;opacity:0;transition:opacity .1s;max-width:240px}
+  .tip.show{opacity:1}
+  .rank{font-size:44px;color:var(--pink);line-height:1.05}
+
+  @media (max-width:980px){
+    .title-wrap{grid-template-columns:1fr}
+    .station{grid-template-columns:1fr}
+    .order{flex-wrap:wrap}
+    .kpis{grid-template-columns:repeat(3,1fr)}
+    .panels{grid-template-columns:1fr}
+    .reviews{grid-template-columns:1fr}
+  }
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- TITLE -->
+  <section id="screen-title" class="screen active">
+    <div class="title-wrap">
+      <div class="hero">
+        <svg viewBox="0 -40 440 330" aria-hidden="true">
+          <ellipse cx="215" cy="278" rx="190" ry="12" fill="rgba(58,46,92,.1)"/>
+          <!-- giant cone on roof -->
+          <path d="M178 62 L242 62 L210 116 Z" fill="#E7B472" stroke="#3A2E5C" stroke-width="5" stroke-linejoin="round"/>
+          <path d="M188 72 L232 72 M195 86 L225 86 M201 100 L219 100" stroke="#C88F4E" stroke-width="4"/>
+          <circle cx="210" cy="40" r="32" fill="#FF9EC2" stroke="#3A2E5C" stroke-width="5"/>
+          <circle cx="210" cy="-6" r="24" fill="#A6E8CB" stroke="#3A2E5C" stroke-width="5"/>
+          <circle cx="210" cy="-34" r="7" fill="#FF5A79" stroke="#3A2E5C" stroke-width="4"/>
+          <!-- body -->
+          <rect x="24" y="112" width="300" height="140" rx="28" fill="#FFFFFF" stroke="#3A2E5C" stroke-width="5"/>
+          <path d="M26 200 H322 V224 a28 28 0 0 1 -28 28 H54 a28 28 0 0 1 -28 -28 Z" fill="#FF7EB0"/>
+          <rect x="24" y="112" width="300" height="140" rx="28" fill="none" stroke="#3A2E5C" stroke-width="5"/>
+          <text x="174" y="234" text-anchor="middle" font-family="Fredoka,Nunito,sans-serif" font-weight="700" font-size="23" fill="#fff">BRAIN FREEZE NYC</text>
+          <!-- window + awning -->
+          <rect x="62" y="140" width="170" height="52" rx="12" fill="#BEE5FF" stroke="#3A2E5C" stroke-width="4"/>
+          <path d="M54 132 H240 V146 q-11.6 12 -23.25 0 q-11.6 12 -23.25 0 q-11.6 12 -23.25 0 q-11.6 12 -23.25 0 q-11.6 12 -23.25 0 q-11.6 12 -23.25 0 q-11.6 12 -23.25 0 q-11.6 12 -23.25 0 Z" fill="#FFD166" stroke="#3A2E5C" stroke-width="4" stroke-linejoin="round"/>
+          <text x="128" y="182" font-size="30" text-anchor="middle">🍦</text><text x="176" y="182" font-size="30" text-anchor="middle">🍨</text>
+          <!-- cab -->
+          <path d="M324 150 H372 Q404 150 412 190 L416 224 Q416 252 390 252 H324 Z" fill="#6CB8FF" stroke="#3A2E5C" stroke-width="5" stroke-linejoin="round"/>
+          <path d="M340 164 H368 Q388 164 394 196 H340 Z" fill="#E4F4FF" stroke="#3A2E5C" stroke-width="4" stroke-linejoin="round"/>
+          <circle cx="408" cy="222" r="6" fill="#FFE07A" stroke="#3A2E5C" stroke-width="3"/>
+          <!-- wheels -->
+          <circle cx="98" cy="254" r="27" fill="#3A2E5C"/><circle cx="98" cy="254" r="11" fill="#E8E2EE"/>
+          <circle cx="352" cy="254" r="27" fill="#3A2E5C"/><circle cx="352" cy="254" r="11" fill="#E8E2EE"/>
+        </svg>
+        <h1 class="logo">Brain Freeze <span class="nyc">NYC</span></h1>
+        <p class="tagline">Drive an ice cream truck around New York, serve picky New Yorkers, then check your stats.</p>
+        <button class="primary" id="startBtn">Start your shift →</button>
+        <div class="best" id="bestLine"></div>
+      </div>
+      <div class="howto">
+        <h2>How to play</h2>
+        <div class="hstep"><span class="n" style="background:#FFE3EE">🧾</span><span>Read the customer's <b>order ticket</b>.</span></div>
+        <div class="hstep"><span class="n" style="background:#FFF4D1">🍦</span><span>Pick a <b>cup or cone</b>.</span></div>
+        <div class="hstep"><span class="n" style="background:#DDF8F1">✋</span><span><b>Hold</b> a flavor tub and <b>let go in the green</b> for a perfect scoop.</span></div>
+        <div class="hstep"><span class="n" style="background:#E5F1FF">🍒</span><span>Add <b>toppings</b>, then hit <b>Serve!</b></span></div>
+        <div class="hstep"><span class="n" style="background:#FFE7EB">⏱️</span><span>Be quick! When the patience bar runs out, they walk away.</span></div>
+        <p class="note">👉 Your first customer comes with a step-by-step guide. After that you're on your own, and every day gets faster. 5 days, 3 customers a day, plus a stats dashboard after each day.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLAY -->
+  <section id="screen-play" class="screen">
+    <header class="hud">
+      <span class="pill" id="hudDay">Day 1/5</span>
+      <span class="pill" id="hudPlace">📍 Central Park</span>
+      <span class="pill" id="hudCust">Customers <span class="dots"></span></span>
+      <span class="pill cash" id="hudCash">💵 $0.00</span>
+      <span class="spacer"></span>
+      <button class="iconbtn" id="helpBtn">⏸ Pause</button>
+      <button class="iconbtn" id="musicBtn" title="Music on/off">🎵 On</button>
+      <button class="iconbtn" id="muteBtn" title="Sound effects on/off">🔊</button>
+    </header>
+    <div class="truck">
+      <div class="awning"><span class="sign">🍦 BRAIN FREEZE NYC 🍦</span></div>
+      <div class="scene" id="scene">
+        <div class="sky" id="sky"></div>
+        <div class="orb" id="orb"></div>
+        <div class="cloud" style="top:30px;width:70px;animation-delay:-8s"></div>
+        <div class="cloud" style="top:64px;width:54px;animation-delay:-25s;animation-duration:55s"></div>
+        <div class="landmark" id="landmark"></div>
+        <svg class="skyline" id="skyline" viewBox="0 0 1000 130" preserveAspectRatio="none"></svg>
+        <div class="ground" id="ground"></div>
+        <div class="customer" id="customer">
+          <div class="bubble" id="bubble"></div>
+          <div class="avatar" id="avatar"></div>
+          <div class="nametag" id="nametag"></div>
+          <div class="patience"><div class="pbar"><div class="pfill" id="pfill"></div></div><span class="mood" id="mood">😊</span></div>
+        </div>
+        <div class="toast" id="toast"></div>
+      </div>
+    </div>
+    <div class="order" id="order">
+      <div class="o-pic" id="oPic"></div>
+      <div class="o-main">
+        <div class="o-head"><span class="t" id="oTitle">Order</span><span class="who" id="oWho"></span></div>
+        <div class="o-groups">
+          <div><div class="o-lbl">Cup / cone</div><div class="o-chips" id="oCont"></div></div>
+          <div class="o-arrow">→</div>
+          <div><div class="o-lbl">Scoops (#1 = bottom)</div><div class="o-chips" id="oScoops"></div></div>
+          <div class="o-arrow">→</div>
+          <div><div class="o-lbl">Toppings</div><div class="o-chips" id="oTops"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="hint" id="hint"><span class="hand">👉</span><span id="hintText"></span></div>
+    <div class="station">
+      <div class="panel-card counter">
+        <div class="counter-label">Your order</div>
+        <div id="build"></div>
+        <div class="actions">
+          <button class="serve" id="serveBtn">Serve! 🛎️</button>
+          <div class="small">
+            <button class="soft" id="undoBtn">↩ Undo</button>
+            <button class="soft" id="trashBtn">🗑 Start over</button>
+          </div>
+        </div>
+      </div>
+      <div class="panel-card controls">
+        <div class="step" id="step1"><h3><span class="n">1</span>Pick a cup or cone</h3><div class="row" id="containers"></div></div>
+        <div class="step" id="step2"><h3><span class="n">2</span>Hold a tub · let go in the green</h3>
+          <div class="scoop-row">
+            <div class="tubs" id="tubs"></div>
+            <div class="meter-wrap">
+              <div class="meter"><div class="zone" id="zone"></div><div class="mfill" id="mfill"></div></div>
+              <div class="mlabel" id="mlabel">HOLD</div>
+            </div>
+          </div>
+        </div>
+        <div class="step" id="step3"><h3><span class="n">3</span>Add toppings</h3><div class="tops" id="toppings"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="screen-dash" class="screen"></section>
+  <section id="screen-final" class="screen"></section>
+</div>
+
+<div class="overlay" id="overlay"><div class="card" id="overlayCard"></div></div>
+<div class="tip" id="tip"></div>
+
+<script>
+/* =========================================================
+   Brain Freeze NYC: an ice cream truck game + analytics
+   Everything is in this one file. No setup needed.
+   ========================================================= */
+
+const CUSTOMERS_PER_DAY = 3;
+const ZONE_CENTER = 0.6;                 // where the green zone sits on the scoop meter (0 = empty, 1 = overflowing)
+const MAX = {container:15, flavors:35, size:20, toppings:20, speed:10};
+const PART_NAMES = {container:'Cup / cone', flavors:'Flavors', size:'Scoop size', toppings:'Toppings', speed:'Speed'};
+const INK = '#3A2E5C';
+
+const CONTAINERS = {
+  cup:   {name:'Cup'},
+  sugar: {name:'Sugar Cone'},
+  waffle:{name:'Waffle Cone'},
+};
+
+const FLAVORS = {
+  vanilla:   {name:'Vanilla',         color:'#FBEBC0', day:1},
+  chocolate: {name:'Chocolate',       color:'#8A5638', day:1},
+  strawberry:{name:'Strawberry',      color:'#FFAFC6', day:1},
+  mint:      {name:'Mint Chip',       color:'#AEEBD2', day:1, chips:'#4A3528'},
+  cookies:   {name:'Cookies & Cream', color:'#F1ECE6', day:2, chips:'#3A2E5C'},
+  pistachio: {name:'Pistachio',       color:'#C3DD95', day:3},
+  cheesecake:{name:'NY Cheesecake',   color:'#F8DDA6', day:4, chips:'#D49A5A'},
+  sherbet:   {name:'Rainbow Sherbet', color:'#FFBE8C', day:5, chips:'#FF7EB0'},
+};
+
+const TOPPINGS = {
+  sprinkles:{name:'Sprinkles',     emoji:'🌈', day:1},
+  fudge:    {name:'Hot Fudge',     emoji:'🍫', day:1},
+  cherry:   {name:'Cherry',        emoji:'🍒', day:1},
+  whipped:  {name:'Whipped Cream', emoji:'☁️', day:2},
+  bwcookie: {name:'B&W Cookie',    emoji:'🍪', day:2},
+  pretzel:  {name:'Pretzel Bits',  emoji:'🥨', day:3},
+  caramel:  {name:'Caramel',       emoji:'🍯', day:4},
+  bagel:    {name:'Bagel Seasoning', emoji:'🥯', day:5},
+};
+
+const DAYS = [
+  {n:1, place:'Central Park', crowd:['tourist','dogwalker','runner','pigeon','grandma'],    landmark:'🌳', orb:'sun',  sky:'linear-gradient(#8FD4FF,#E1F5FF)', ground:'#8ED68F', bld:'rgba(90,130,190,.28)',
+   patience:60, scoops:[1,1], tops:[0,1], zone:.25, speed:1.4, blurb:'Your first customer comes with a step-by-step guide. After that, you\'re on your own!'},
+  {n:2, place:'Times Square', crowd:['tourist','actor','cabbie','performer','pigeon'],    landmark:'📺', orb:'moon', sky:'linear-gradient(#3A2A78,#D266A8)', ground:'#A49CB4', bld:'rgba(30,18,70,.55)', neon:true,
+   patience:48, scoops:[1,2], tops:[1,1], zone:.20, speed:1.15, blurb:'Bright lights and big crowds. Some customers want two scoops now.'},
+  {n:3, place:'Coney Island', crowd:['beachgoer','hotdog','seagull','kid','grandma'],    landmark:'🎡', orb:'sun',  sky:'linear-gradient(#FFB283,#FFEBC2)', ground:'#F4DDA8', bld:'rgba(170,90,60,.25)',
+   patience:40, scoops:[2,2], tops:[1,2], zone:.16, speed:0.95, blurb:'Boardwalk rush! Every order is two scoops now.'},
+  {n:4, place:'Lincoln Center', crowd:['student','finance','dancer','violinist'],  landmark:'🎻', orb:'moon', sky:'linear-gradient(#2F3F80,#A2B6EE)', ground:'#D3CBC2', bld:'rgba(25,30,80,.45)',
+   patience:34, scoops:[2,3], tops:[2,2], zone:.13, speed:0.78, blurb:'The show starts soon, so everyone is fancy and in a hurry.'},
+  {n:5, place:'Brooklyn Bridge', crowd:['founder','artist','messenger','finance','tourist'], landmark:'🌉', orb:'sun',  sky:'linear-gradient(#FF9A76,#6A55A8)', ground:'#B8AFA6', bld:'rgba(50,30,90,.45)',
+   patience:29, scoops:[3,3], tops:[2,3], zone:.10, speed:0.62, blurb:'Final day: the sunset rush. Three scoops every time, a tiny green zone, and zero patience. You got this!'},
+];
+
+const CUSTOMERS = [
+  {id:'tourist', name:'Tourist from Ohio', emoji:'🤳', patience:1.2, tip:1.0,
+   hello:['Is this the famous truck from TikTok?','Which way is the Empire State Building?'],
+   happy:'Best thing I\'ve eaten in New York!', meh:'Hm. I\'ve had better back in Columbus.', mad:'I\'m telling everyone back home about this.'},
+  {id:'finance', name:'Finance Bro', emoji:'🤵', patience:0.8, tip:1.7,
+   hello:['I have a call in four minutes.','Make it quick. Markets are open.'],
+   happy:'Bullish on this truck.', meh:'Mid. Like my bonus.', mad:'Total loss. I\'m shorting this truck.'},
+  {id:'student', name:'Fordham Student', emoji:'🧑‍🎓', patience:1.0, tip:0.6,
+   hello:['Is there a student discount?','I have a midterm in an hour. I need this.'],
+   happy:'This is getting me through finals.', meh:'It\'s fine. Better than the caf.', mad:'I can\'t afford to be disappointed like this.'},
+  {id:'pigeon', name:'A Pigeon', emoji:'🐦', patience:0.9, tip:0.3,
+   hello:['Coo.','Coo coo. (He points at the menu with one wing.)'],
+   happy:'COO! (Happy wing flap.)', meh:'...coo.', mad:'(Steals a napkin and flies off.)'},
+  {id:'grandma', name:'Grandma from Queens', emoji:'👵', patience:1.3, tip:1.3,
+   hello:['Back in my day a scoop was a scoop.','Don\'t skimp, sweetheart.'],
+   happy:'You\'re a good kid. Here, take a little extra.', meh:'Eh. Your grandmother would do better.', mad:'Feh! I\'m calling your mother.'},
+  {id:'actor', name:'Broadway Understudy', emoji:'🧑‍🎤', patience:0.85, tip:1.1,
+   hello:['I go on in twenty minutes!','Tonight is my big break. I can feel it.'],
+   happy:'Bravo! Standing ovation!', meh:'A matinee performance at best.', mad:'Closing night. For your truck.'},
+  {id:'cabbie', name:'Cab Driver', emoji:'🚕', patience:0.8, tip:1.2,
+   hello:['Make it quick, I\'m double parked.','Meter\'s running, let\'s go.'],
+   happy:'Now THAT\'S a smooth ride.', meh:'Eh, I\'ve had worse fares.', mad:'Forget it. I\'m off duty.'},
+  {id:'artist', name:'Brooklyn Artist', emoji:'🧑‍🎨', patience:1.15, tip:0.9,
+   hello:['Make it feel... authentic.','I\'m doing a series on dessert. Very conceptual.'],
+   happy:'This is a whole mood. Honestly, art.', meh:'Derivative, but okay.', mad:'I liked this truck before it was bad.'},
+  {id:'founder', name:'Startup Founder', emoji:'🧑‍💻', patience:0.95, tip:1.4,
+   hello:['Can you make it disruptive?','We\'re basically the Uber of ice cream.'],
+   happy:'10x experience. Let\'s partner.', meh:'Solid MVP. Needs iteration.', mad:'We\'re pivoting to a different truck.'},
+  {id:'dogwalker', name:'Dog Walker (8 dogs)', emoji:'🐕', patience:0.85, tip:1.0,
+   hello:['Quick, before they see a squirrel!','Nobody bark. NOBODY bark.'],
+   happy:'Even the dogs are impressed.', meh:'The dogs are lukewarm on it.', mad:'The dogs and I are leaving.'},
+  {id:'runner', name:'Marathon Runner', emoji:'🏃', patience:0.75, tip:1.0,
+   hello:['Mile 14. Need sugar. Now.','Can you scoop while I jog in place?'],
+   happy:'Personal best!', meh:'Eh. Mid-race fuel.', mad:'I\'m running to a different truck.'},
+  {id:'performer', name:'Street Performer', emoji:'🕺', patience:0.9, tip:0.7,
+   hello:['I\'ve been dancing for six hours straight.','Showtime! ...Oh, you meant ice cream.'],
+   happy:'This deserves a standing ovation!', meh:'I\'ve had better crowds.', mad:'Showtime is OVER.'},
+  {id:'beachgoer', name:'Boardwalk Beachgoer', emoji:'😎', patience:0.9, tip:1.0,
+   hello:['It\'s SO hot. Hurry before it melts!','Sand in everything. Ice cream fixes it.'],
+   happy:'Perfect beach day!', meh:'It\'s melting, but fine.', mad:'Back to the waves. Bye.'},
+  {id:'hotdog', name:'Hot Dog Contest Champ', emoji:'🌭', patience:1.0, tip:1.2,
+   hello:['Just ate 60 hot dogs. Dessert time.','I have room. I always have room.'],
+   happy:'Champion-level scoop!', meh:'I\'ve had better. And more.', mad:'You\'re disqualified.'},
+  {id:'seagull', name:'A Seagull', emoji:'🐦', patience:0.8, tip:0.3,
+   hello:['SKRAAA!','(Stares at your cone. Intensely.)'],
+   happy:'SKRAAA! (Delighted.)', meh:'(Unimpressed squawk.)', mad:'(Steals someone\'s fries and leaves.)'},
+  {id:'kid', name:'Kid Who Won a Goldfish', emoji:'🧒', patience:1.0, tip:0.5,
+   hello:['I won a goldfish! His name is Gary.','Can Gary have some too?'],
+   happy:'Gary says thank you!', meh:'Gary is not impressed.', mad:'Gary and I are leaving.'},
+  {id:'dancer', name:'Ballet Dancer', emoji:'💃', patience:0.8, tip:1.1,
+   hello:['Rehearsal in ten minutes. Quickly, please.','One tiny scoop. Okay, maybe more.'],
+   happy:'Graceful. Flawless. Bravo.', meh:'Not quite en pointe.', mad:'I\'ll pirouette right out of here.'},
+  {id:'violinist', name:'Juilliard Violinist', emoji:'🎻', patience:1.0, tip:0.8,
+   hello:['I practiced eight hours today. I deserve this.','Make it taste... in tune.'],
+   happy:'That hit every note.', meh:'A little flat.', mad:'Completely off-key.'},
+  {id:'messenger', name:'Bike Messenger', emoji:'🚴', patience:0.65, tip:1.0,
+   hello:['Can\'t stop, gotta deliver.','Biked here from Queens in nine minutes.'],
+   happy:'Fastest scoop in the city.', meh:'I could\'ve been there and back.', mad:'I\'m out. Got deliveries.'},
+];
+
+/* ---------- helpers ---------- */
+const $ = s => document.querySelector(s);
+const randInt = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const shuffle = a => { a = a.slice(); for (let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; };
+const money = v => '$' + v.toFixed(2);
+const esc = s => String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+const starStr = n => '★'.repeat(n) + '☆'.repeat(5-n);
+const starHTML = n => '★'.repeat(n) + `<span class="off">${'★'.repeat(5-n)}</span>`;
+function seeded(seed){ let s = (seed>>>0) || 1; return () => { s=(s^(s<<13))>>>0; s=(s^(s>>>17))>>>0; s=(s^(s<<5))>>>0; return s/4294967296; }; }
+let uid = 0;
+
+/* ---------- sound (tiny beeps, no files needed) ---------- */
+let AC = null;
+function beep(freq=600, dur=.08, type='sine', vol=.06, delay=0){
+  if (S.mute) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime + delay;
+    o.type = type; o.frequency.value = freq;
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t+dur);
+    o.connect(g); g.connect(AC.destination); o.start(t); o.stop(t+dur+.03);
+  } catch(e){}
+}
+const sfx = {
+  bell(){ beep(1046,.3,'sine',.05); beep(1318,.35,'sine',.04,.12); },
+  plop(){ beep(260,.07,'sine',.08); beep(180,.08,'sine',.06,.05); },
+  click(){ beep(700,.04,'triangle',.04); },
+  cash(){ beep(880,.09,'triangle',.06); beep(1320,.2,'triangle',.06,.09); },
+  yay(){ [784,988,1175,1568].forEach((f,i) => beep(f,.14,'triangle',.05,i*.08)); },
+  bad(){ beep(170,.32,'sawtooth',.03); },
+};
+
+
+/* =========================================================
+   Background music: an original upbeat pop loop, made live
+   with Web Audio (drums + bass + chords + melody). No files.
+   Tempo goes up each day along with the difficulty.
+   ========================================================= */
+const MUSIC = { on:true, playing:false, timer:null, step:0, next:0, bpm:108, master:null, noise:null, loops:0 };
+const mtof = m => 440 * Math.pow(2, (m-69)/12);
+// C – G – Am – F
+const CHORDS = [[60,64,67],[59,62,67],[57,60,64],[57,60,65]];
+const ROOTS  = [48,43,45,41];
+// original 4-bar hook: [step in the 64-step loop, midi note, length in 16ths]
+const MELODY = [
+  [0,76,2],[2,79,2],[4,81,2],[6,79,2],[8,76,4],[12,74,2],[14,72,2],
+  [16,74,2],[18,76,2],[20,79,4],[24,74,2],[26,76,2],[28,74,4],
+  [32,72,2],[34,76,2],[36,81,4],[40,79,2],[42,81,2],[44,84,4],
+  [48,81,2],[50,79,2],[52,77,2],[54,76,2],[56,74,6],
+];
+const B_PATTERN = [0,3,6,8,10,14];
+
+function musicSetup(){
+  AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+  if (!MUSIC.master){
+    MUSIC.master = AC.createGain(); MUSIC.master.gain.value = .5;
+    const lp = AC.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 6000;
+    MUSIC.master.connect(lp); lp.connect(AC.destination);
+    const len = AC.sampleRate * .5, buf = AC.createBuffer(1, len, AC.sampleRate), d = buf.getChannelData(0);
+    for (let i=0;i<len;i++) d[i] = Math.random()*2 - 1;
+    MUSIC.noise = buf;
+  }
+  if (AC.state === 'suspended') AC.resume();
+}
+function mTone(freq, t, dur, type, vol){
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.type = type; o.frequency.value = freq;
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t+.008);
+  g.gain.exponentialRampToValueAtTime(.0001, t+dur);
+  o.connect(g); g.connect(MUSIC.master); o.start(t); o.stop(t+dur+.05);
+}
+function mNoise(t, dur, hp, vol){
+  const src = AC.createBufferSource(), f = AC.createBiquadFilter(), g = AC.createGain();
+  src.buffer = MUSIC.noise; f.type = 'highpass'; f.frequency.value = hp;
+  g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t+dur);
+  src.connect(f); f.connect(g); g.connect(MUSIC.master); src.start(t); src.stop(t+dur+.02);
+}
+function mKick(t){
+  const o = AC.createOscillator(), g = AC.createGain();
+  o.frequency.setValueAtTime(150, t); o.frequency.exponentialRampToValueAtTime(45, t+.12);
+  g.gain.setValueAtTime(.55, t); g.gain.exponentialRampToValueAtTime(.0001, t+.28);
+  o.connect(g); g.connect(MUSIC.master); o.start(t); o.stop(t+.3);
+}
+function scheduleStep(step, t){
+  const sixteenth = 60 / MUSIC.bpm / 4;
+  const bar = Math.floor(step/16), inBar = step % 16;
+  // drums
+  if (inBar === 0 || inBar === 8 || inBar === 11) mKick(t);
+  if (inBar === 4 || inBar === 12){ mNoise(t, .16, 1500, .2); mTone(190, t, .08, 'triangle', .08); }
+  if (inBar % 2 === 0) mNoise(t, inBar % 4 === 2 ? .1 : .035, 7000, .045);
+  // bass
+  if (B_PATTERN.includes(inBar)){
+    const r = ROOTS[bar] + (inBar === 6 || inBar === 14 ? 12 : 0);
+    mTone(mtof(r), t, sixteenth*1.8, 'triangle', .2);
+  }
+  // offbeat chord stabs
+  if (inBar % 4 === 2) CHORDS[bar].forEach(n => mTone(mtof(n), t, sixteenth*1.6, 'triangle', .035));
+  // melody (every other time through, an octave up for a lift)
+  MELODY.forEach(([st, n, len]) => { if (st === step) mTone(mtof(n + (MUSIC.loops % 2 ? 12 : 0)), t, sixteenth*len*.95, 'square', .028); });
+  if (step === 63) MUSIC.loops++;
+}
+function musicTick(){
+  const sixteenth = 60 / MUSIC.bpm / 4;
+  while (MUSIC.next < AC.currentTime + .12){
+    scheduleStep(MUSIC.step, MUSIC.next);
+    MUSIC.next += sixteenth;
+    MUSIC.step = (MUSIC.step + 1) % 64;
+  }
+}
+function musicStart(){
+  if (!MUSIC.on || MUSIC.playing) return;
+  try {
+    musicSetup();
+    MUSIC.playing = true; MUSIC.step = 0; MUSIC.next = AC.currentTime + .05;
+    MUSIC.timer = setInterval(musicTick, 25);
+  } catch(e){ MUSIC.playing = false; }
+}
+function musicStop(){ clearInterval(MUSIC.timer); MUSIC.playing = false; }
+function musicTempo(dayIdx){ MUSIC.bpm = 108 + dayIdx*8; }   // Day 1: 108 bpm → Day 5: 140 bpm
+
+/* ---------- game state ---------- */
+const S = {
+  mode:'title', d:0, ci:0, cash:0, mute:false, paused:false,
+  queue:[], cur:null, build:null, scooping:null,
+  results:[], days:[],
+};
+
+/* =========================================================
+   Drawing the ice cream (SVG)
+   ========================================================= */
+function treatSVG(b, opts={}){
+  const id = 'c' + (uid++);
+  let o = '';
+  const cx = 100;
+  let baseY = 200;
+  const sw = 3.5;
+  if (b.container === 'cup'){
+    o += `<path d="M44 178 L156 178 L141 250 Q140 254 136 254 L64 254 Q60 254 59 250 Z" fill="#FF8DB9" stroke="${INK}" stroke-width="${sw}" stroke-linejoin="round"/>
+          <path d="M50 202 L150 202 M54 224 L146 224" stroke="#fff" stroke-width="7" opacity=".8" stroke-linecap="round"/>
+          <rect x="38" y="170" width="124" height="13" rx="6.5" fill="#FFB3CF" stroke="${INK}" stroke-width="${sw}"/>`;
+    baseY = 176;
+  } else if (b.container === 'sugar'){
+    o += `<clipPath id="${id}"><path d="M60 160 L140 160 L100 252 Z"/></clipPath>
+          <path d="M60 160 L140 160 L100 252 Z" fill="#F0C98A"/>
+          <g clip-path="url(#${id})" stroke="#D3A15F" stroke-width="3"><path d="M50 182 L150 198 M50 206 L150 222 M50 230 L150 246"/></g>
+          <path d="M60 160 L140 160 L100 252 Z" fill="none" stroke="${INK}" stroke-width="${sw}" stroke-linejoin="round"/>`;
+    baseY = 162;
+  } else if (b.container === 'waffle'){
+    o += `<clipPath id="${id}"><path d="M48 152 L152 152 L100 254 Z"/></clipPath>
+          <path d="M48 152 L152 152 L100 254 Z" fill="#DDA466"/>
+          <g clip-path="url(#${id})" stroke="#B07438" stroke-width="3">
+            <path d="M30 150 L130 260 M55 150 L155 260 M80 150 L180 260 M5 150 L105 260 M105 150 L205 260"/>
+            <path d="M170 150 L70 260 M145 150 L45 260 M120 150 L20 260 M195 150 L95 260 M95 150 L-5 260"/></g>
+          <path d="M48 152 L152 152 L100 254 Z" fill="none" stroke="${INK}" stroke-width="${sw}" stroke-linejoin="round"/>
+          <rect x="42" y="146" width="116" height="12" rx="6" fill="#E8B57A" stroke="${INK}" stroke-width="${sw}"/>`;
+    baseY = 150;
+  } else {
+    o += `<ellipse cx="100" cy="236" rx="72" ry="15" fill="#F6EEF5"/>
+          <text x="100" y="208" text-anchor="middle" font-family="Nunito,sans-serif" font-weight="800" font-size="15" fill="#B9AFC6">pick a cup or cone</text>`;
+  }
+
+  const pos = [];
+  let y = baseY;
+  b.scoops.forEach((s, i) => {
+    const f = Math.min(1, Math.max(0, s.fill));
+    const r = 16 + f*28;
+    const cy = y - r*0.72;
+    const col = FLAVORS[s.flavor].color;
+    o += `<ellipse cx="${cx}" cy="${cy + r*0.62}" rx="${r*1.1}" ry="${r*0.3}" fill="${col}" stroke="${INK}" stroke-width="${sw}"/>`;
+    o += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${col}" stroke="${INK}" stroke-width="${sw}"/>`;
+    if (FLAVORS[s.flavor].chips){
+      const R = seeded(i*97 + s.flavor.length*13 + 5);
+      for (let k=0;k<6;k++){
+        const a = R()*Math.PI*2, d = R()*r*.7;
+        o += `<circle cx="${cx+Math.cos(a)*d}" cy="${cy+Math.sin(a)*d}" r="2.6" fill="${FLAVORS[s.flavor].chips}"/>`;
+      }
+    }
+    o += `<ellipse cx="${cx - r*.38}" cy="${cy - r*.42}" rx="${r*.24}" ry="${r*.13}" fill="#fff" opacity=".6" transform="rotate(-30 ${cx - r*.38} ${cy - r*.42})"/>`;
+    pos.push({cy, r});
+    y = cy - r*0.5;
+  });
+
+  let minY = b.container ? 144 : 180;
+  pos.forEach(p => minY = Math.min(minY, p.cy - p.r));
+  const top = pos[pos.length-1];
+  const T = new Set(b.tops || []);
+  if (top){
+    const {cy, r} = top;
+    const drip = (color) => {
+      const sy = cy - r*0.3, sx = r*0.954;
+      let d = `M${cx-sx} ${sy} A${r} ${r} 0 0 1 ${cx+sx} ${sy}`;
+      const steps = 6;
+      for (let k=1;k<=steps;k++){
+        const x = cx + sx - k*(2*sx/steps);
+        const yy = sy + (k%2 ? r*0.6 : r*0.15);
+        d += ` Q${x + sx/steps} ${yy} ${x} ${yy}`;
+      }
+      return `<path d="${d} Z" fill="${color}" stroke="${INK}" stroke-width="3" stroke-linejoin="round"/>
+              <ellipse cx="${cx - r*.3}" cy="${cy - r*.62}" rx="${r*.18}" ry="${r*.07}" fill="#fff" opacity=".45"/>`;
+    };
+    if (T.has('fudge'))   o += drip('#5A3220');
+    if (T.has('caramel')) o += drip('#EDA63A');
+    if (T.has('sprinkles')){
+      const cols = ['#FF5C93','#4DA8FF','#FFD23F','#3CCFB4','#A77BF0'];
+      pos.forEach((p, i) => {
+        const R = seeded(31 + i*7);
+        for (let k=0;k<12;k++){
+          const a = R()*Math.PI*2, d = R()*p.r*.8, x = cx+Math.cos(a)*d, yy = p.cy+Math.sin(a)*d;
+          o += `<rect x="${x-6}" y="${yy-2.25}" width="12" height="4.5" rx="2.25" fill="${cols[k%5]}" stroke="${INK}" stroke-width="1" transform="rotate(${R()*180} ${x} ${yy})"/>`;
+        }
+      });
+    }
+    if (T.has('bwcookie')){
+      const R = seeded(77);
+      for (let k=0;k<10;k++){ const a=-R()*Math.PI, d=R()*r*.8; o += `<circle cx="${cx+Math.cos(a)*d}" cy="${cy+Math.sin(a)*d}" r="6.5" fill="${k%2?INK:'#FFFFFF'}" stroke="${INK}" stroke-width="1.5"/>`; }
+    }
+    if (T.has('bagel')){
+      const R = seeded(55);
+      for (let k=0;k<26;k++){ const a=-R()*Math.PI, d=R()*r*.85; o += `<circle cx="${cx+Math.cos(a)*d}" cy="${cy+Math.sin(a)*d}" r="3" stroke="${INK}" stroke-width=".8" fill="${[INK,'#FFF','#C9A46A'][k%3]}"/>`; }
+    }
+    if (T.has('pretzel')){
+      o += `<text x="${cx-r*.42}" y="${cy-r*.05}" font-size="24" text-anchor="middle">🥨</text><text x="${cx+r*.42}" y="${cy+r*.2}" font-size="22" text-anchor="middle">🥨</text><text x="${cx}" y="${cy-r*.45}" font-size="20" text-anchor="middle">🥨</text>`;
+    }
+    let peak = cy - r;
+    if (T.has('whipped')){
+      o += `<g fill="#FFFFFF" stroke="${INK}" stroke-width="3">
+              <circle cx="${cx-15}" cy="${peak+2}" r="15"/><circle cx="${cx+15}" cy="${peak+2}" r="15"/><circle cx="${cx}" cy="${peak-12}" r="16"/></g>`;
+      peak -= 27;
+    }
+    minY = Math.min(minY, peak - 4);
+    if (T.has('cherry')){
+      minY = Math.min(minY, peak - 30);
+      o += `<path d="M${cx+2} ${peak-6} Q${cx+8} ${peak-24} ${cx+18} ${peak-26}" fill="none" stroke="#3E8A2E" stroke-width="3" stroke-linecap="round"/>
+            <circle cx="${cx}" cy="${peak-2}" r="12" fill="#F0284F" stroke="${INK}" stroke-width="3"/>
+            <circle cx="${cx-3}" cy="${peak-5}" r="2.5" fill="#fff" opacity=".7"/>`;
+    }
+  }
+  const vbox = opts.viewBox || (opts.fit ? `0 ${minY-10} 200 ${264-(minY-10)}` : '0 -55 200 315');
+  return `<svg viewBox="${vbox}" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">${o}</svg>`;
+}
+function tubSVG(color){
+  return `<svg viewBox="0 0 60 46" aria-hidden="true">
+    <path d="M10 22 A20 17 0 0 1 50 22 Z" fill="${color}" stroke="${INK}" stroke-width="2.5"/>
+    <ellipse cx="22" cy="14" rx="5" ry="2.5" fill="#fff" opacity=".6"/>
+    <path d="M9 22 L51 22 L46 44 L14 44 Z" fill="#fff" stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="M11 30 L49 30 L47.4 37 L12.6 37 Z" fill="${color}"/>
+    <rect x="6" y="19" width="48" height="6" rx="3" fill="#fff" stroke="${INK}" stroke-width="2.5"/></svg>`;
+}
+
+/* =========================================================
+   Orders
+   ========================================================= */
+function makeOrder(day, cust, isFirst){
+  const flav = Object.keys(FLAVORS).filter(k => FLAVORS[k].day <= day.n);
+  const tops = Object.keys(TOPPINGS).filter(k => TOPPINGS[k].day <= day.n);
+  const newFlav = Object.keys(FLAVORS).filter(k => FLAVORS[k].day === day.n);
+  const newTop  = Object.keys(TOPPINGS).filter(k => TOPPINGS[k].day === day.n);
+  const n = randInt(day.scoops[0], day.scoops[1]);
+  const flavors = [];
+  for (let i=0;i<n;i++) flavors.push(pick(flav));
+  let t = shuffle(tops).slice(0, randInt(day.tops[0], day.tops[1]));
+  if (isFirst && day.n > 1){              // show off what just unlocked
+    if (newFlav.length) flavors[0] = newFlav[0];
+    if (newTop.length && !t.includes(newTop[0])){ t = t.slice(0, Math.max(0, t.length-1)); t.push(newTop[0]); }
+  }
+  if (cust.id === 'pigeon' || cust.id === 'seagull'){   // birds only care about crumbs
+    const crumb = tops.includes('bwcookie') ? 'bwcookie' : 'sprinkles';
+    if (!t.includes(crumb)){ if (t.length >= Math.max(1, day.tops[1])) t.pop(); t.push(crumb); }
+  }
+  return { container: pick(Object.keys(CONTAINERS)), flavors, tops: t };
+}
+const perfectBuild = o => ({ container:o.container, scoops:o.flavors.map(f => ({flavor:f, fill:ZONE_CENTER})), tops:o.tops });
+const orderPrice = o => 4 + 1.5*o.flavors.length + 0.75*o.tops.length;
+
+/* =========================================================
+   Scoring
+   ========================================================= */
+function scoopAccuracy(fill, zone){
+  const d = Math.max(0, Math.abs(fill - ZONE_CENTER) - zone/2);
+  return Math.max(0, 1 - d/0.25);
+}
+function scoreOrder(order, build, patienceFrac, zone){
+  const p = {};
+  p.container = build.container === order.container ? MAX.container : 0;
+  const n = Math.max(order.flavors.length, build.scoops.length);
+  let m = 0;
+  for (let i=0;i<n;i++) if (build.scoops[i] && build.scoops[i].flavor === order.flavors[i]) m++;
+  p.flavors = n ? MAX.flavors*m/n : MAX.flavors;
+  p.size = build.scoops.length ? MAX.size * build.scoops.reduce((a,s) => a + scoopAccuracy(s.fill, zone), 0) / build.scoops.length : 0;
+  const want = new Set(order.tops), got = new Set(build.tops);
+  const inter = [...want].filter(x => got.has(x)).length;
+  const union = new Set([...want, ...got]).size;
+  p.toppings = union ? MAX.toppings*inter/union : MAX.toppings;
+  p.speed = MAX.speed * Math.min(1, patienceFrac/0.7);
+  Object.keys(p).forEach(k => p[k] = Math.round(p[k]*10)/10);
+  const total = Math.round(Object.values(p).reduce((a,b) => a+b, 0));
+  const stars = total >= 90 ? 5 : total >= 75 ? 4 : total >= 58 ? 3 : total >= 40 ? 2 : 1;
+  return {parts:p, total, stars};
+}
+function complaint(order, build, parts, wait){
+  let worst = null, worstLoss = 0;
+  for (const k in MAX){ const loss = 1 - parts[k]/MAX[k]; if (loss > worstLoss + 1e-9){ worst = k; worstLoss = loss; } }
+  if (!worst || worstLoss < 0.15) return null;
+  if (worst === 'container') return `Asked for a ${CONTAINERS[order.container].name.toLowerCase()}, got a ${CONTAINERS[build.container].name.toLowerCase()}.`;
+  if (worst === 'flavors'){
+    if (build.scoops.length !== order.flavors.length) return `I ordered ${order.flavors.length} scoop${order.flavors.length>1?'s':''} and got ${build.scoops.length}. I can count.`;
+    const i = order.flavors.findIndex((f, j) => build.scoops[j].flavor !== f);
+    return `I said ${FLAVORS[order.flavors[i]].name}, not ${FLAVORS[build.scoops[i].flavor].name}.`;
+  }
+  if (worst === 'size'){
+    const avg = build.scoops.reduce((a,s) => a+s.fill, 0)/build.scoops.length;
+    return avg < ZONE_CENTER ? 'The scoops were TINY. Tiny!' : 'It was overflowing everywhere. My hands are still sticky.';
+  }
+  if (worst === 'toppings'){
+    const missing = order.tops.filter(t => !build.tops.includes(t));
+    const extra = build.tops.filter(t => !order.tops.includes(t));
+    if (missing.length) return `Where was my ${TOPPINGS[missing[0]].name.toLowerCase()}?`;
+    if (extra.length) return `Who asked for ${TOPPINGS[extra[0]].name.toLowerCase()}?!`;
+  }
+  if (worst === 'speed') return `Waited ${Math.round(wait)} seconds. In New York that's a lifetime.`;
+  return null;
+}
+const PRAISE = ['Perfect. No notes.','Exactly what I ordered. Rare in this city.','Five stars. Would wait in line again.','Chef\'s kiss.'];
+
+/* =========================================================
+   Flow
+   ========================================================= */
+function show(id){ document.querySelectorAll('.screen').forEach(s => s.classList.toggle('active', s.id === id)); window.scrollTo(0,0); }
+function overlay(html){ const c = $('#overlayCard'); c.innerHTML = html; c.style.animation = 'none'; void c.offsetWidth; c.style.animation = ''; $('#overlay').classList.add('show'); }
+function closeOverlay(){ $('#overlay').classList.remove('show'); }
+function confetti(){
+  const cols = ['#FF7EB0','#6CB8FF','#FFD166','#5ED6C0','#B48CF2'];
+  for (let i=0;i<70;i++){
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = Math.random()*100 + 'vw';
+    c.style.background = cols[i%5];
+    c.style.animationDuration = (1.4 + Math.random()*1.4) + 's';
+    c.style.animationDelay = (Math.random()*.3) + 's';
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 3200);
+  }
+}
+
+function startGame(){
+  S.d = 0; S.cash = 0; S.days = [];
+  musicTempo(0); musicStart();
+  show('screen-play');
+  startDay();
+}
+
+function startDay(){
+  const day = DAYS[S.d];
+  S.ci = 0; S.results = [];
+  musicTempo(S.d);
+  S.queue = shuffle(CUSTOMERS.filter(c => day.crowd.includes(c.id))).slice(0, CUSTOMERS_PER_DAY);   // locals for this neighborhood
+  paintScene(day);
+  renderControls();
+  S.mode = 'intro';
+  $('#customer').style.visibility = 'hidden';
+  ['#oPic','#oCont','#oScoops','#oTops','#oWho'].forEach(id => $(id).innerHTML = ''); $('#oTitle').textContent = 'Waiting for a customer…';
+  $('#build').innerHTML = '';
+  setHint('Get ready…');
+  const newF = Object.values(FLAVORS).filter(f => f.day === day.n);
+  const newT = Object.values(TOPPINGS).filter(t => t.day === day.n);
+  const chips = [...newF.map(f => `<span class="chip"><span class="sw" style="background:${f.color}"></span>${f.name}</span>`),
+                 ...newT.map(t => `<span class="chip">${t.emoji} ${t.name}</span>`)].join('');
+  overlay(`<div class="center">
+    <div class="eyebrow">Day ${day.n} of ${DAYS.length}</div>
+    <div style="font-size:84px;line-height:1.15">${day.landmark}</div>
+    <h2>${day.place}</h2>
+    <p class="quote" style="font-weight:700;color:var(--ink2)">${day.blurb}</p>
+    ${day.n > 1 ? `<div class="chip" style="background:#FFE7EB;color:#B33952;margin-bottom:12px">⚡ Speed ${'●'.repeat(day.n)}${'○'.repeat(DAYS.length-day.n)} · faster scooping, less patience</div>` : ''}
+    ${day.n > 1 ? `<div class="eyebrow" style="color:var(--ink2)">New on the menu</div><div class="newstuff">${chips}</div>` : '<div style="height:6px"></div>'}
+    <button class="primary" id="goDay">Open the window →</button></div>`);
+  $('#goDay').onclick = () => { closeOverlay(); sfx.click(); nextCustomer(); };
+  updateHUD();
+}
+
+function nextCustomer(){
+  if (S.ci >= CUSTOMERS_PER_DAY){ endDay(); return; }
+  const day = DAYS[S.d];
+  const c = S.queue[S.ci];
+  const order = makeOrder(day, c, S.ci === 0);
+  const pMax = day.patience * c.patience * (isTutorial() ? 1.8 : 1);
+  S.cur = { c, order, pMax, patience:pMax, arrived:performance.now() };
+  S.build = { container:null, scoops:[], tops:[] };
+  S.mode = 'serving';
+  const el = $('#customer');
+  el.style.visibility = 'visible';
+  el.classList.remove('leave','angry','enter'); void el.offsetWidth; el.classList.add('enter');
+  $('#avatar').textContent = c.emoji;
+  $('#nametag').textContent = c.name;
+  $('#bubble').textContent = pick(c.hello);
+  renderBuild();
+  updateHUD();
+  sfx.bell();
+}
+
+/* ---------- the live ticket + guidance ---------- */
+function renderTicket(){
+  const {order, c} = S.cur, b = S.build;
+  const tut = isTutorial();                       // green/red feedback only while learning
+  const st = v => tut ? v : '';
+  const contState = !b.container ? '' : b.container === order.container ? 'ok' : 'bad';
+  $('#oTitle').textContent = `Order #${S.d*CUSTOMERS_PER_DAY + S.ci + 1}`;
+  $('#oWho').textContent = `${c.emoji} ${c.name}`;
+  $('#oPic').innerHTML = treatSVG(perfectBuild(order), {fit:true});
+  $('#oCont').innerHTML = `<span class="ochip ${st(contState)}"><span class="em">🍦</span>${CONTAINERS[order.container].name}</span>`;
+  $('#oScoops').innerHTML = order.flavors.map((f,i) => {
+    const s = b.scoops[i];
+    const state = !s ? '' : s.flavor === f ? 'ok' : 'bad';
+    return `<span class="ochip ${st(state)}"><span class="num">${i+1}</span><span class="sw" style="background:${FLAVORS[f].color}"></span>${FLAVORS[f].name}</span>`;
+  }).join('');
+  $('#oTops').innerHTML = order.tops.length
+    ? order.tops.map(t => `<span class="ochip ${st(b.tops.includes(t) ? 'ok' : '')}"><span class="em">${TOPPINGS[t].emoji}</span>${TOPPINGS[t].name}</span>`).join('')
+    : `<span class="ochip none">None</span>`;
+}
+
+function setHint(html, cls=''){
+  $('#hintText').innerHTML = html;
+  $('#hint').className = 'hint ' + cls;
+}
+
+/* the step-by-step guide only runs for the very first customer of the game */
+const isTutorial = () => S.d === 0 && S.ci === 0;
+
+/* works out the next thing the player should do */
+function guide(){
+  const {order} = S.cur, b = S.build;
+  const showTargets = true;
+  document.querySelectorAll('.target').forEach(e => e.classList.remove('target'));
+  ['step1','step2','step3'].forEach(id => $('#'+id).classList.remove('glow','done'));
+  $('#serveBtn').classList.remove('ready');
+  $('#hint').style.display = isTutorial() ? '' : 'none';
+  if (!isTutorial()) return;           // after the first customer you're on your own
+  const glow = (step, sel) => { $('#'+step).classList.add('glow'); if (showTargets && sel){ const e = document.querySelector(sel); if (e) e.classList.add('target'); } };
+
+  const contOK = b.container === order.container;
+  const wrongIdx = b.scoops.findIndex((s,i) => i >= order.flavors.length || s.flavor !== order.flavors[i]);
+  const scoopsOK = wrongIdx === -1 && b.scoops.length === order.flavors.length;
+  const missing = order.tops.filter(t => !b.tops.includes(t));
+  const extra = b.tops.filter(t => !order.tops.includes(t));
+  if (contOK) $('#step1').classList.add('done');
+  if (scoopsOK) $('#step2').classList.add('done');
+
+  if (!b.container){ glow('step1', `.cbtn[data-c="${order.container}"]`); setHint(`Pick a <b>${CONTAINERS[order.container].name}</b>.`); return; }
+  if (!contOK){ glow('step1', `.cbtn[data-c="${order.container}"]`); setHint(`Wrong one! They want a <b>${CONTAINERS[order.container].name}</b>. Click it to swap.`, 'warn'); return; }
+  if (wrongIdx !== -1){
+    setHint(wrongIdx >= order.flavors.length ? 'That\'s too many scoops. Hit <b>↩ Undo</b>.' : `Scoop #${wrongIdx+1} is the wrong flavor. Hit <b>↩ Undo</b>.`, 'warn');
+    $('#undoBtn').classList.add('target'); return;
+  }
+  if (b.scoops.length < order.flavors.length){
+    const f = order.flavors[b.scoops.length];
+    glow('step2', `.tub[data-f="${f}"]`);
+    setHint(`<b>Hold</b> the <b>${FLAVORS[f].name}</b> tub… and let go when the meter turns <b style="color:var(--mint-d)">green</b>.`);
+    return;
+  }
+  if (missing.length){ glow('step3', `.tbtn[data-t="${missing[0]}"]`); setHint(`Add <b>${TOPPINGS[missing[0]].emoji} ${TOPPINGS[missing[0]].name}</b>.`); return; }
+  if (extra.length){ glow('step3', `.tbtn[data-t="${extra[0]}"]`); setHint(`They didn't ask for <b>${TOPPINGS[extra[0]].name}</b>. Click it again to remove it.`, 'warn'); return; }
+  $('#step3').classList.add('done');
+  $('#serveBtn').classList.add('ready');
+  setHint('Looks perfect! Hit <b>Serve! 🛎️</b>', 'good');
+}
+
+function renderControls(){
+  const day = DAYS[S.d];
+  $('#containers').innerHTML = Object.keys(CONTAINERS).map(k =>
+    `<button class="cbtn" data-c="${k}">${treatSVG({container:k, scoops:[], tops:[]}, {viewBox:'30 140 140 120'})}${CONTAINERS[k].name}</button>`).join('');
+  $('#tubs').innerHTML = Object.keys(FLAVORS).filter(k => FLAVORS[k].day <= day.n).map(k => {
+    const f = FLAVORS[k];
+    return `<button class="tub" data-f="${k}">${f.day === day.n && day.n > 1 ? '<span class="badge">NEW</span>' : ''}${tubSVG(f.color)}${f.name}</button>`;
+  }).join('');
+  $('#toppings').innerHTML = Object.keys(TOPPINGS).filter(k => TOPPINGS[k].day <= day.n).map(k => {
+    const t = TOPPINGS[k];
+    return `<button class="tbtn" data-t="${k}">${t.day === day.n && day.n > 1 ? '<span class="badge">NEW</span>' : ''}<span class="jar">${t.emoji}</span><span class="t">${t.name}</span></button>`;
+  }).join('');
+  const z = $('#zone');
+  z.style.bottom = ((ZONE_CENTER - day.zone/2)*100) + '%';
+  z.style.height = (day.zone*100) + '%';
+}
+
+function renderBuild(){
+  $('#build').innerHTML = treatSVG(S.build);
+  document.querySelectorAll('.cbtn').forEach(b => b.classList.toggle('sel', b.dataset.c === S.build.container));
+  document.querySelectorAll('.tbtn').forEach(b => b.classList.toggle('sel', S.build.tops.includes(b.dataset.t)));
+  renderTicket();
+  guide();
+}
+
+function paintScene(day){
+  $('#sky').style.background = day.sky;
+  $('#ground').style.background = day.ground;
+  $('#landmark').textContent = day.landmark;
+  $('#orb').className = 'orb ' + day.orb;
+  document.querySelectorAll('.cloud').forEach(c => c.style.display = day.orb === 'sun' ? 'block' : 'none');
+  const R = seeded(day.n * 1013);
+  let g = '', x = -10;
+  while (x < 1010){
+    const w = 44 + R()*70, h = 36 + R()*86;
+    g += `<rect x="${x}" y="${130-h}" width="${w}" height="${h}" rx="4" fill="${day.bld}"/>`;
+    for (let wy = 130-h+10; wy < 122; wy += 16) for (let wx = x+8; wx < x+w-10; wx += 16)
+      if (R() > .5) g += `<rect x="${wx}" y="${wy}" width="7" height="8" rx="1.5" fill="${day.neon && R()>.55 ? pick(['#FF7EDF','#7FF3FF','#FFE97F']) : 'rgba(255,240,180,.7)'}"/>`;
+    x += w + 6;
+  }
+  $('#skyline').innerHTML = g;
+}
+
+function updateHUD(){
+  const day = DAYS[S.d];
+  $('#hudDay').textContent = `Day ${day.n} of ${DAYS.length}`;
+  $('#hudPlace').textContent = `📍 ${day.place}`;
+  let dots = '';
+  for (let i=0;i<CUSTOMERS_PER_DAY;i++) dots += `<i class="${i < S.ci ? 'done' : i === S.ci && S.mode !== 'intro' ? 'now' : ''}"></i>`;
+  $('#hudCust').innerHTML = `Customers <span class="dots">${dots}</span>`;
+  $('#hudCash').textContent = `💵 ${money(S.cash)}`;
+}
+
+let toastT = null;
+function toast(msg){ const t = $('#toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastT); toastT = setTimeout(() => t.classList.remove('show'), 1300); }
+
+/* ---------- player actions ---------- */
+function startScoop(flavor, btn){
+  if (S.mode !== 'serving' || S.paused) return;
+  if (!S.build.container){ toast('Pick a cup or cone first!'); return; }
+  if (S.build.scoops.length >= 3){ toast('Max 3 scoops!'); return; }
+  S.scooping = { flavor, start:performance.now(), fill:0, btn };
+  btn.classList.add('holding');
+}
+function finishScoop(){
+  const sc = S.scooping; if (!sc) return;
+  S.scooping = null;
+  sc.btn.classList.remove('holding');
+  $('#mfill').style.height = '0%';
+  const ml = $('#mlabel'); ml.textContent = 'HOLD'; ml.className = 'mlabel';
+  if (sc.fill < 0.06){ toast('Hold the tub down to scoop!'); return; }
+  S.build.scoops.push({flavor:sc.flavor, fill:sc.fill});
+  const acc = scoopAccuracy(sc.fill, DAYS[S.d].zone);
+  toast(acc >= .999 ? 'Perfect scoop! ✨' : sc.fill < ZONE_CENTER ? 'A little small…' : 'Whoa, too big!');
+  sfx.plop();
+  renderBuild();
+}
+function serve(){
+  if (S.mode !== 'serving' || S.paused) return;
+  if (!S.build.container || !S.build.scoops.length){ toast('Add a cup or cone and at least one scoop!'); return; }
+  const {c, order, pMax, patience, arrived} = S.cur;
+  const wait = (performance.now() - arrived)/1000;
+  const zone = DAYS[S.d].zone;
+  const sc = scoreOrder(order, S.build, Math.max(0, patience)/pMax, zone);
+  const price = orderPrice(order);
+  const paid = sc.total >= 40 ? price : price*0.5;
+  const tip = Math.round(price * 0.45 * Math.pow(sc.total/100, 2) * c.tip * 100)/100;
+  const revenue = Math.round((paid + tip)*100)/100;
+  S.cash += revenue;
+  const comp = complaint(order, S.build, sc.parts, wait);
+  const reaction = sc.stars >= 4 ? c.happy : sc.stars === 3 ? c.meh : c.mad;
+  const review = sc.stars === 5 ? pick(PRAISE) : sc.stars === 4 ? (comp ? `Great overall. One note: ${comp}` : pick(PRAISE)) : (comp ? `${reaction} ${comp}` : reaction);
+  const res = { c, order, build:JSON.parse(JSON.stringify(S.build)), ...sc, wait, price, paid, tip, revenue, walked:false, review };
+  S.results.push(res);
+  S.mode = 'result';
+  if (sc.stars === 5){ sfx.yay(); confetti(); } else if (sc.stars >= 3) sfx.cash(); else sfx.bad();
+  updateHUD();
+  const rows = Object.keys(MAX).map(k => `<span>${PART_NAMES[k]}</span><span class="bar"><i style="width:${100*sc.parts[k]/MAX[k]}%"></i></span><span class="v">${Math.round(sc.parts[k])}/${MAX[k]}</span>`).join('');
+  overlay(`<div class="center">
+    <div class="eyebrow">Score ${sc.total} / 100</div>
+    <div class="stars">${starHTML(sc.stars)}</div>
+    <p class="quote">${c.emoji} “${reaction}”</p>
+    <div class="compare"><div>${treatSVG(perfectBuild(order), {fit:true})}They ordered</div><div>${treatSVG(res.build, {fit:true})}You made</div></div>
+    <div class="bd">${rows}</div>
+    <div class="money">Paid ${money(paid)} + tip <b>${money(tip)}</b> ${paid < price ? '<br><span style="color:#D23E5C;font-size:14px">They only paid half because they weren\'t happy.</span>' : ''}</div>
+    <button class="primary" id="nextBtn">${S.ci + 1 >= CUSTOMERS_PER_DAY ? 'Close up & see today\'s stats 📊' : 'Next customer →'}</button></div>`);
+  $('#nextBtn').onclick = advance;
+}
+function walkout(){
+  const {c, order, pMax} = S.cur;
+  S.mode = 'result';
+  S.scooping = null;
+  const el = $('#customer'); el.classList.remove('enter','angry'); el.classList.add('leave');
+  sfx.bad();
+  S.results.push({ c, order, build:JSON.parse(JSON.stringify(S.build)), parts:{container:0,flavors:0,size:0,toppings:0,speed:0}, total:0, stars:1,
+    wait:pMax, price:orderPrice(order), paid:0, tip:0, revenue:0, walked:true, review:`Waited forever and nobody served me. ${c.mad}` });
+  setTimeout(() => {
+    overlay(`<div class="center">
+      <div class="eyebrow" style="color:#D23E5C">They bounced</div>
+      <div style="font-size:72px">${c.emoji}💨</div>
+      <h2>${c.name} walked away!</h2>
+      <p class="quote">“${c.mad}”</p>
+      <p style="color:var(--ink2);font-weight:700;margin-top:-4px">No sale this time. Try to serve faster. The bar under the customer shows their patience.</p>
+      <button class="primary" id="nextBtn">${S.ci + 1 >= CUSTOMERS_PER_DAY ? 'Close up & see today\'s stats 📊' : 'Next customer →'}</button></div>`);
+    $('#nextBtn').onclick = advance;
+  }, 450);
+}
+function advance(){
+  closeOverlay(); sfx.click();
+  S.ci++;
+  if (S.ci >= CUSTOMERS_PER_DAY){ endDay(); return; }
+  nextCustomer();
+}
+
+/* =========================================================
+   Analytics
+   ========================================================= */
+function summarize(results, dayIdx){
+  const served = results.filter(r => !r.walked);
+  const avg = (arr, f) => arr.length ? arr.reduce((a,x) => a + f(x), 0)/arr.length : 0;
+  const lost = {};
+  for (const k in MAX) lost[k] = served.length ? 100 * (1 - served.reduce((a,r) => a + r.parts[k], 0)/(MAX[k]*served.length)) : 0;
+  const revenue = results.reduce((a,r) => a + r.revenue, 0);
+  return {
+    day: DAYS[dayIdx], revenue,
+    tips: results.reduce((a,r) => a + r.tip, 0),
+    aov: served.length ? revenue/served.length : 0,
+    accuracy: avg(served, r => r.total),
+    wait: avg(served, r => r.wait),
+    csat: 100 * results.filter(r => r.stars >= 4).length / results.length,
+    bounce: 100 * results.filter(r => r.walked).length / results.length,
+    rating: avg(results, r => r.stars),
+    lost, results,
+  };
+}
+function letterGrade(s){
+  const score = s.accuracy * (1 - s.bounce/100);
+  return score >= 85 ? 'A' : score >= 72 ? 'B' : score >= 58 ? 'C' : score >= 42 ? 'D' : 'F';
+}
+
+/* --- charts: single hue, rounded data-ends, hover tooltips --- */
+function roundedBar(x, top, w, base, r=4){
+  const h = base - top;
+  if (h <= 0) return '';
+  if (h < r) return `M${x} ${top} h${w} v${h} h${-w} Z`;
+  return `M${x} ${base} V${top+r} Q${x} ${top} ${x+r} ${top} H${x+w-r} Q${x+w} ${top} ${x+w} ${top+r} V${base} Z`;
+}
+function vbars(items, {max=100, fmt=v => Math.round(v), color='var(--chart)', H=230, W=520} = {}){
+  const L = 40, Rp = 12, T = 22, B = 50;
+  const n = items.length, iw = (W-L-Rp)/n, bw = Math.min(46, iw*.42);
+  const y = v => T + (H-T-B)*(1 - v/max);
+  let g = '';
+  [0, max/2, max].forEach(t => {
+    g += `<line x1="${L}" x2="${W-Rp}" y1="${y(t)}" y2="${y(t)}" stroke="#F0E8F0" stroke-width="1"/>
+          <text x="${L-8}" y="${y(t)+4}" text-anchor="end">${fmt(t)}</text>`;
+  });
+  items.forEach((it, i) => {
+    const cx = L + iw*i + iw/2, x = cx - bw/2, base = y(0);
+    if (it.empty){
+      g += `<rect x="${x}" y="${base-26}" width="${bw}" height="26" rx="4" fill="none" stroke="#C9C0D4" stroke-width="2" stroke-dasharray="5 4"/>
+            <text x="${cx}" y="${base-32}" text-anchor="middle" class="val">left</text>`;
+    } else {
+      const top = y(Math.max(0, it.value)), d = roundedBar(x, top, bw, base);
+      if (d) g += `<path d="${d}" fill="${color}"/>`;
+      g += `<text x="${cx}" y="${top-7}" text-anchor="middle" class="val">${fmt(it.value)}</text>`;
+    }
+    g += `<text x="${cx}" y="${base+22}" text-anchor="middle" style="font-size:18px">${it.label}</text>`;
+    if (it.sub) g += `<text x="${cx}" y="${base+40}" text-anchor="middle">${it.sub}</text>`;
+    g += `<rect class="hit" x="${L+iw*i}" y="${T-14}" width="${iw}" height="${H-T-B+58}" data-tip="${esc(it.tip || '')}"/>`;
+  });
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}">${g}</svg>`;
+}
+function hbars(items, {max=100, color='var(--chart2)'} = {}){
+  const W = 520, L = 110, Rp = 54, rowH = 34, T = 6;
+  const H = T*2 + rowH*items.length;
+  const x = v => L + (W-L-Rp)*(v/max);
+  let g = '';
+  items.forEach((it, i) => {
+    const yy = T + i*rowH, bh = 14, by = yy + (rowH-bh)/2, w = Math.max(0, x(it.value) - L);
+    g += `<text x="${L-10}" y="${by+11}" text-anchor="end">${it.label}</text>
+          <rect x="${L}" y="${by}" width="${W-L-Rp}" height="${bh}" rx="7" fill="#F6F0F6"/>`;
+    if (w > 0) g += `<path d="${w < 4 ? `M${L} ${by} h${w} v${bh} h${-w} Z` : `M${L} ${by} H${L+w-4} Q${L+w} ${by} ${L+w} ${by+4} V${by+bh-4} Q${L+w} ${by+bh} ${L+w-4} ${by+bh} H${L} Z`}" fill="${color}"/>`;
+    g += `<text x="${L+w+8}" y="${by+11}" class="val">${Math.round(it.value)}%</text>
+          <rect class="hit" x="0" y="${yy}" width="${W}" height="${rowH}" data-tip="${esc(it.tip || '')}"/>`;
+  });
+  return `<svg class="chart" viewBox="0 0 ${W} ${H}">${g}</svg>`;
+}
+
+const INSIGHT = {
+  container:'Wrong cups and cones cost you the most. Check the 🍦 line on the ticket first.',
+  flavors:'Flavor mix-ups cost you the most. Scoop in ticket order: #1 goes on the bottom.',
+  size:'Scoop size cost you the most. Let go when the meter says NOW! (the green band).',
+  toppings:'Toppings cost you the most. Missing ones AND extra ones both lose points.',
+  speed:'Speed cost you the most. Faster service means a better score and fewer walkouts.',
+};
+
+function kpi(label, value, delta){ return `<div class="kpi"><div class="k">${label}</div><div class="v">${value}</div><div class="d ${delta ? delta.cls : ''}">${delta ? delta.text : '&nbsp;'}</div></div>`; }
+function delta(cur, prev, {fmt = v => v.toFixed(0), lowerIsBetter = false, unit = ''} = {}){
+  if (prev === undefined || prev === null) return {text:'first day', cls:''};
+  const diff = cur - prev;
+  if (Math.abs(diff) < 0.05) return {text:'– same as yesterday', cls:''};
+  const good = lowerIsBetter ? diff < 0 : diff > 0;
+  return {text:`${diff > 0 ? '▲' : '▼'} ${fmt(Math.abs(diff))}${unit} vs yesterday`, cls: good ? 'good' : 'bad'};
+}
+
+function endDay(){
+  S.mode = 'dash';
+  const s = summarize(S.results, S.d);
+  S.days.push(s);
+  const prev = S.days.length > 1 ? S.days[S.days.length-2] : null;
+  const grade = letterGrade(s);
+  const worst = Object.keys(MAX).sort((a,b) => s.lost[b] - s.lost[a])[0];
+  const bounced = s.results.filter(r => r.walked).length;
+  let insight = s.lost[worst] > 8 ? INSIGHT[worst] : 'Super clean day. You barely lost any points. 👏';
+  if (bounced) insight += ` ${bounced} customer${bounced>1?'s':''} walked away, which is a ${Math.round(s.bounce)}% bounce rate.`;
+
+  const accItems = s.results.map(r => ({
+    label: r.c.emoji, sub: r.walked ? 'walked away' : '★'.repeat(r.stars), value: r.total, empty: r.walked,
+    tip: r.walked ? `<b>${r.c.name}</b><br>Walked away after ${Math.round(r.wait)}s` :
+      `<b>${r.c.name}</b><br>Score ${r.total}/100 · ${r.stars}★<br>` + Object.keys(MAX).map(k => `${PART_NAMES[k]}: ${Math.round(r.parts[k])}/${MAX[k]}`).join('<br>') + `<br>Wait ${Math.round(r.wait)}s · Paid ${money(r.revenue)}`
+  }));
+  const lostItems = Object.keys(MAX).map(k => ({label:PART_NAMES[k], value:s.lost[k], tip:`<b>${PART_NAMES[k]}</b><br>You lost ${Math.round(s.lost[k])}% of the ${MAX[k]} points available per order`}));
+  const revItems = S.days.map(d => ({label:d.day.landmark, sub:`Day ${d.day.n}`, value:d.revenue, tip:`<b>Day ${d.day.n} · ${d.day.place}</b><br>Revenue ${money(d.revenue)}<br>Tips ${money(d.tips)}<br>Accuracy ${Math.round(d.accuracy)}%`}));
+  const maxRev = Math.max(20, ...S.days.map(d => d.revenue)) * 1.15;
+  const last = S.d === DAYS.length - 1;
+  const next = DAYS[S.d + 1];
+
+  $('#screen-dash').innerHTML = `<div class="dash">
+    <div class="dash-head">
+      <div><div class="eyebrow">📊 Truck stats · End of Day ${s.day.n}</div><h1>${s.day.landmark} ${s.day.place} report</h1></div>
+      <div class="grade">Day grade<b>${grade}</b></div>
+    </div>
+    <div class="kpis">
+      ${kpi('Revenue', money(s.revenue), delta(s.revenue, prev && prev.revenue, {fmt:v => '$'+v.toFixed(2)}))}
+      ${kpi('Avg order value', money(s.aov), delta(s.aov, prev && prev.aov, {fmt:v => '$'+v.toFixed(2)}))}
+      ${kpi('Order accuracy', Math.round(s.accuracy) + '%', delta(s.accuracy, prev && prev.accuracy, {unit:' pts'}))}
+      ${kpi('Avg wait time', s.wait.toFixed(1) + 's', delta(s.wait, prev && prev.wait, {fmt:v => v.toFixed(1), unit:'s', lowerIsBetter:true}))}
+      ${kpi('Happy customers', Math.round(s.csat) + '%', delta(s.csat, prev && prev.csat, {unit:' pts'}))}
+      ${kpi('Bounce rate', Math.round(s.bounce) + '%', delta(s.bounce, prev && prev.bounce, {unit:' pts', lowerIsBetter:true}))}
+    </div>
+    <div class="insight">💡 ${insight}</div>
+    <div class="panels">
+      <div class="panel"><h3>Order accuracy by customer</h3><div class="sub">Score out of 100. Hover a bar for the breakdown.</div>${vbars(accItems)}</div>
+      <div class="panel"><h3>Where you lost points</h3><div class="sub">Share of points lost at each step (lower is better)</div>${hbars(lostItems)}</div>
+      ${S.days.length > 1 ? `<div class="panel wide"><h3>Revenue by day</h3><div class="sub">Sales plus tips for each neighborhood so far</div>${vbars(revItems, {max:maxRev, fmt:v => '$'+Math.round(v), H:200, W:1080})}</div>` : ''}
+    </div>
+    <div class="panel" style="margin-bottom:12px"><h3>Customer reviews</h3><div class="sub">What people are saying online</div>
+      <div class="reviews">${s.results.map(r => `<div class="review"><div class="who"><span>${r.c.emoji} ${r.c.name}</span><span class="rs">${starStr(r.stars)}</span></div><p>${r.review}</p></div>`).join('')}</div>
+    </div>
+    <div class="dash-foot">
+      ${last ? `<button class="primary" id="dashNext">See final results 🏆</button>` : `<button class="primary" id="dashNext">Drive to Day ${next.n}: ${next.place} ${next.landmark} →</button>`}
+    </div></div>`;
+  show('screen-dash');
+  sfx.cash();
+  $('#dashNext').onclick = () => {
+    sfx.click();
+    if (last){ finalScreen(); return; }
+    S.d++; show('screen-play'); startDay();
+  };
+}
+
+function finalScreen(){
+  S.mode = 'final';
+  const total = S.days.reduce((a,d) => a + d.revenue, 0);
+  const all = S.days.flatMap(d => d.results);
+  const served = all.filter(r => !r.walked);
+  const acc = served.length ? served.reduce((a,r) => a + r.total, 0)/served.length : 0;
+  const rating = all.reduce((a,r) => a + r.stars, 0)/all.length;
+  const bounce = 100 * all.filter(r => r.walked).length / all.length;
+  const rank = total >= 135 ? 'Ice Cream Mogul of NYC 👑' : total >= 100 ? 'Five-Borough Legend 🗽' : total >= 65 ? 'Neighborhood Favorite 🏙️' : 'Sticky-Fingered Rookie 🫠';
+  let best = 0; try { best = parseFloat(localStorage.getItem('bfnyc-best')) || 0; } catch(e){}
+  const isBest = total > best;
+  if (isBest){ try { localStorage.setItem('bfnyc-best', total.toFixed(2)); } catch(e){} }
+  const bestDay = S.days.reduce((a,d) => d.revenue > a.revenue ? d : a, S.days[0]);
+  const top = served.slice().sort((a,b) => b.total - a.total)[0];
+  const worst = all.slice().sort((a,b) => a.total - b.total)[0];
+  const revItems = S.days.map(d => ({label:d.day.landmark, sub:`Day ${d.day.n}`, value:d.revenue, tip:`<b>${d.day.place}</b><br>Revenue ${money(d.revenue)}`}));
+  const accItems = S.days.map(d => ({label:d.day.landmark, sub:`Day ${d.day.n}`, value:d.accuracy, tip:`<b>${d.day.place}</b><br>Accuracy ${Math.round(d.accuracy)}%<br>Bounce rate ${Math.round(d.bounce)}%`}));
+  const maxRev = Math.max(20, ...S.days.map(d => d.revenue)) * 1.15;
+  $('#screen-final').innerHTML = `<div class="dash">
+    <div class="dash-head"><div><div class="eyebrow">🏁 Season wrap-up</div><h1 class="rank">${rank}</h1></div>
+      <div class="grade">Total earned<b>${money(total)}</b></div></div>
+    <div class="kpis">
+      ${kpi('Total revenue', money(total), {text: isBest ? '🎉 new high score!' : `best: ${money(Math.max(best,total))}`, cls: isBest ? 'good' : ''})}
+      ${kpi('Customers', all.length, {text:`${served.length} served`, cls:''})}
+      ${kpi('Avg accuracy', Math.round(acc) + '%', null)}
+      ${kpi('Avg rating', rating.toFixed(1) + '★', null)}
+      ${kpi('Bounce rate', Math.round(bounce) + '%', null)}
+      ${kpi('Best day', `<span style="font-size:19px">${bestDay.day.landmark} ${bestDay.day.place}</span>`, {text: money(bestDay.revenue), cls:''})}
+    </div>
+    <div class="panels">
+      <div class="panel"><h3>Revenue by day</h3><div class="sub">Sales plus tips</div>${vbars(revItems, {max:maxRev, fmt:v => '$'+Math.round(v)})}</div>
+      <div class="panel"><h3>Accuracy by day</h3><div class="sub">Average order score, served customers only</div>${vbars(accItems)}</div>
+    </div>
+    <div class="panels">
+      ${top ? `<div class="panel"><h3>⭐ Best review</h3><div class="review" style="margin-top:8px"><div class="who"><span>${top.c.emoji} ${top.c.name}</span><span class="rs">${starStr(top.stars)}</span></div><p>${top.review}</p></div></div>` : ''}
+      <div class="panel"><h3>🫠 Worst review</h3><div class="review" style="margin-top:8px"><div class="who"><span>${worst.c.emoji} ${worst.c.name}</span><span class="rs">${starStr(worst.stars)}</span></div><p>${worst.review}</p></div></div>
+    </div>
+    <div class="dash-foot"><button class="primary" id="againBtn">Play again 🍦</button></div></div>`;
+  show('screen-final');
+  sfx.yay(); confetti();
+  $('#againBtn').onclick = () => { sfx.click(); startGame(); };
+}
+
+/* =========================================================
+   Main loop: patience timer + scoop meter
+   ========================================================= */
+let lastT = performance.now();
+function loop(t){
+  const dt = Math.min(.1, (t - lastT)/1000); lastT = t;
+  if (S.mode === 'serving' && !S.paused && S.cur){
+    S.cur.patience -= dt;
+    const f = Math.max(0, S.cur.patience/S.cur.pMax);
+    const pf = $('#pfill');
+    pf.style.width = (f*100) + '%';
+    pf.style.background = f > .5 ? 'var(--mint)' : f > .25 ? 'var(--yellow)' : 'var(--red)';
+    $('#mood').textContent = f > .5 ? '😊' : f > .25 ? '😐' : '😤';
+    $('#customer').classList.toggle('angry', f < .25);
+    if (S.cur.patience <= 0) walkout();
+  }
+  if (S.scooping){
+    const sc = S.scooping;
+    sc.fill = Math.min(1, (t - sc.start)/(DAYS[S.d].speed*1000));
+    $('#mfill').style.height = (sc.fill*100) + '%';
+    const z = DAYS[S.d].zone, ml = $('#mlabel');
+    if (sc.fill >= 1){ ml.textContent = 'TOO BIG'; ml.className = 'mlabel over'; }
+    else if (Math.abs(sc.fill - ZONE_CENTER) <= z/2){ ml.textContent = 'NOW!'; ml.className = 'mlabel now'; }
+    else { ml.textContent = sc.fill > ZONE_CENTER ? 'TOO BIG' : 'HOLD…'; ml.className = 'mlabel' + (sc.fill > ZONE_CENTER ? ' over' : ''); }
+  }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+/* =========================================================
+   Wiring
+   ========================================================= */
+$('#startBtn').onclick = () => { sfx.click(); startGame(); };
+$('#containers').addEventListener('click', e => {
+  const b = e.target.closest('.cbtn'); if (!b || S.mode !== 'serving' || S.paused) return;
+  S.build.container = b.dataset.c; sfx.click(); renderBuild();
+});
+$('#tubs').addEventListener('pointerdown', e => {
+  const b = e.target.closest('.tub'); if (!b) return;
+  e.preventDefault();
+  startScoop(b.dataset.f, b);
+});
+window.addEventListener('pointerup', finishScoop);
+window.addEventListener('pointercancel', finishScoop);
+window.addEventListener('blur', finishScoop);
+$('#tubs').addEventListener('contextmenu', e => e.preventDefault());
+$('#toppings').addEventListener('click', e => {
+  const b = e.target.closest('.tbtn'); if (!b || S.mode !== 'serving' || S.paused) return;
+  if (!S.build.scoops.length){ toast('Scoop some ice cream first!'); return; }
+  const k = b.dataset.t, i = S.build.tops.indexOf(k);
+  if (i >= 0) S.build.tops.splice(i, 1); else S.build.tops.push(k);
+  sfx.click(); renderBuild();
+});
+$('#undoBtn').onclick = () => {
+  if (S.mode !== 'serving') return;
+  S.build.scoops.pop();
+  if (!S.build.scoops.length) S.build.tops = [];
+  sfx.click(); renderBuild();
+};
+$('#trashBtn').onclick = () => {
+  if (S.mode !== 'serving') return;
+  S.build = {container:null, scoops:[], tops:[]}; renderBuild(); toast('Fresh start!');
+};
+$('#serveBtn').onclick = serve;
+$('#musicBtn').onclick = () => {
+  MUSIC.on = !MUSIC.on;
+  $('#musicBtn').textContent = MUSIC.on ? '🎵 On' : '🎵 Off';
+  if (MUSIC.on) musicStart(); else musicStop();
+};
+$('#muteBtn').onclick = () => { S.mute = !S.mute; $('#muteBtn').textContent = S.mute ? '🔇' : '🔊'; };
+$('#helpBtn').onclick = () => {
+  if (S.mode !== 'serving') return;
+  S.paused = true;
+  musicStop();
+  overlay(`<div class="center"><div class="eyebrow">Paused</div><h2>How to play</h2></div>
+    <div style="margin:14px 0">
+      <div class="hstep"><span class="n" style="background:#FFE3EE">🧾</span><span>The <b>ticket</b> on the left shows the order. The picture shows the goal.</span></div>
+      <div class="hstep"><span class="n" style="background:#FFF4D1">🍦</span><span>Click the right <b>cup or cone</b>.</span></div>
+      <div class="hstep"><span class="n" style="background:#DDF8F1">✋</span><span><b>Hold</b> a tub and let go when the meter says <b>NOW!</b> Scoop #1 goes on the bottom.</span></div>
+      <div class="hstep"><span class="n" style="background:#E5F1FF">🍒</span><span>Click <b>toppings</b> to add or remove them, then <b>Serve!</b></span></div>
+      <div class="hstep"><span class="n" style="background:#FFF4D1">⚡</span><span>Each day the meter fills faster, the green zone shrinks and customers get less patient.</span></div>
+    </div>
+    <div class="center"><button class="primary" id="resume">Back to work →</button></div>`);
+  $('#resume').onclick = () => { closeOverlay(); S.paused = false; musicStart(); };
+};
+(function(){ let best = 0; try { best = parseFloat(localStorage.getItem('bfnyc-best')) || 0; } catch(e){}
+  if (best) $('#bestLine').textContent = `🏆 Your best: ${money(best)}`; })();
+
+/* tooltips for charts */
+const tipEl = $('#tip');
+document.addEventListener('mousemove', e => {
+  const h = e.target.closest && e.target.closest('[data-tip]');
+  if (!h || !h.getAttribute('data-tip')){ tipEl.classList.remove('show'); return; }
+  tipEl.innerHTML = h.getAttribute('data-tip');
+  tipEl.classList.add('show');
+  const w = tipEl.offsetWidth, hh = tipEl.offsetHeight;
+  let x = e.clientX + 14, y = e.clientY + 14;
+  if (x + w > innerWidth - 8) x = e.clientX - w - 14;
+  if (y + hh > innerHeight - 8) y = e.clientY - hh - 14;
+  tipEl.style.left = x + 'px'; tipEl.style.top = y + 'px';
+});
+</script>
+</body>
+</html>
